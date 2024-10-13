@@ -64,7 +64,7 @@ export default class GameRenderer extends Renderer {
     }
 
     protected onStart(): void {
-        this.$sendInputsInterval = setInterval(this.sendInputs.bind(this), 1000 / 60);
+        this.$sendInputsInterval = window.setInterval(this.sendInputs.bind(this), 1000 / 60);
     }
 
     protected onStop(): void {

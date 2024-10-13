@@ -36,7 +36,13 @@ interface Keyboard {
     right: boolean;
 }
 
+interface Joystick {
+	value: number;
+	angle: number;
+}
+
 interface PlayerInput {
     mouse: Mouse;
     keyboard: Keyboard;
+	joystick: Joystick;
 }

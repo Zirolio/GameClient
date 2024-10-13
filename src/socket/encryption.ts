@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+// import CryptoJS from 'crypto-js';
 
 /* static encrypt(data: string, key: string) {
     return CryptoJS.AES.encrypt(data, CryptoJS.enc.Base64.parse(key), {
@@ -18,7 +18,7 @@ export default class Encryption {
         const key = 1000 + Math.floor(Math.random() * 10000);
         let result = "";
 
-        for (const w of [...data].map(w => w.charCodeAt(0))) result += String.fromCharCode(w + key);
+		for(let i = 0; i < data.length; i++) result += String.fromCharCode(data.charCodeAt(i) + key);
 
         return result + String.fromCharCode(key + 1234);
     }
@@ -27,7 +27,7 @@ export default class Encryption {
         const key = data.charCodeAt(data.length - 1) - 1234;
         let result = "";
 
-        for (const w of [...data.slice(0, -1)].map(w => w.charCodeAt(0))) result += String.fromCharCode(w - key);
+		for(let i = 0; i < data.length-1; i++) result += String.fromCharCode(data.charCodeAt(i) - key);
 
         return result;
     }

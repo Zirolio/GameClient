@@ -1,4 +1,3 @@
-import { Player } from "./objects/entities/player";
 import GameRenderer from "./renderers/gameRenderer";
 import { MessagesTypes, Socket } from "./socket";
 import { GameConfig, SocketServerMessage } from "./socket/types";
