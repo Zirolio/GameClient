@@ -1,0 +1,8 @@
+export enum MessagesTypes {
+    GAME_CONFIG,
+    UPDATE_ENTITIES,
+    PLAYER_READY,
+    PLAYER_CONFIG,
+    PLAYER_INPUT,
+    PLAYER_CLOSE
+}
