@@ -11,9 +11,13 @@
   "description": "",
   "dependencies": {
     "@types/crypto-js": "^4.2.2",
-    "gsap": "^3.12.5",
+    "gsap": "^3.12.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
     "nodemon": "^3.1.4",
     "typescript": "^5.5.4",
-    "vite": "^5.4.3"
+    "vite": "^5.4.3",
+    "vite-plugin-static-copy": "^2.0.0"
   }
 }
