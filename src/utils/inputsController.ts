@@ -1,5 +1,4 @@
 import { PlayerInput } from "../socket/types";
-import Vec2 from "./vec2";
 
 enum Buttons {
     LEFT = 0,
@@ -27,9 +26,13 @@ export default class InputsController {
                 right: false
             },
             mouse: {
-                position: new Vec2(),
+                position: { x: 0, y: 0 },
                 shot: false
-            }
+            },
+			joystick: {
+				angle: 0,
+				value: 0
+			}
         }
         this.initCanvas(canvas);
     }

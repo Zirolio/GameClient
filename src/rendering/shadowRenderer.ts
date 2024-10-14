@@ -1,7 +1,9 @@
+import { Vector2 } from "ver/Vector2";
+
 import Camera from "./camera";
 import CanvasContext from "../utils/context";
 import { CircleLight, ConicLight } from "../utils/utils";
-import Vec2, { Vec2Like } from "../utils/vec2";
+
 
 export default class ShadowRenderer {
     private $ctx: CanvasContext;
@@ -14,7 +16,7 @@ export default class ShadowRenderer {
         this.$ctx = ctx;
     }
 
-    private drawCircleLight(point: Vec2Like, radius: number) {
+    private drawCircleLight(point: Vector2, radius: number) {
         this.$shadowCtx.save();
 
         this.$shadowCtx.fillStyle = this.$shadowCtx.createRadialGradient(point, 0, point, radius, [
@@ -30,7 +32,7 @@ export default class ShadowRenderer {
         this.$shadowCtx.restore();
     }
 
-    private drawConicLight(point: Vec2Like, angle: number, distance: number, scattering: number) {
+    private drawConicLight(point: Vector2, angle: number, distance: number, scattering: number) {
         this.$shadowCtx.save();
 
         // Конус

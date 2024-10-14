@@ -1,7 +1,4 @@
-import { Player } from "../objects/entities/player";
-import Entity from "../objects/entity";
 import CanvasContext from "../utils/context";
-import Vec2 from "../utils/vec2";
 import Camera from "./camera";
 
 export default abstract class Renderer {

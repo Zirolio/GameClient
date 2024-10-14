@@ -12,7 +12,11 @@ export default class Game {
 
     constructor() {
         this.$gameRenderer = new GameRenderer(this);
-        this.$socket = new Socket('ws://127.0.0.1:5000/server', this.onSocketOpen.bind(this), this.onSocketConnect.bind(this), this.onSocketMessage.bind(this));
+        this.$socket = new Socket('ws://127.0.0.1:5000/server');
+
+		this.$socket.on('open', this.onSocketOpen.bind(this));
+		this.$socket.on('connect', this.onSocketConnect.bind(this));
+		this.$socket.on('message', this.onSocketMessage.bind(this));
     }
     
     onSocketOpen() {

@@ -1,8 +1,17 @@
+import { Event, EventDispatcher } from "ver/events";
+
 import Encryption from "./encryption";
 import { MessagesTypes } from "./messagesTypes";
 import { SocketClientMessage, SocketServerMessage } from "./types";
 
-export default class Socket {
+
+export default class Socket extends EventDispatcher {
+	public '@open' = new Event<Socket, []>(this);
+	public '@close' = new Event<Socket, []>(this);
+	public '@connect' = new Event<Socket, []>(this);
+	public '@message' = new Event<Socket, [data: SocketServerMessage]>(this);
+
+
     private $url: string;
     get url() { return this.$url }
 
@@ -11,39 +20,27 @@ export default class Socket {
 
     private $socket: WebSocket;
     
-    private $onOpen?: () => unknown;
-    private $onConnect?: () => unknown;
-    private $onMessage?: (data: SocketServerMessage) => unknown;
-    private $onClose?: () => unknown;
+    constructor(url: string) {
+		super();
 
-    constructor(url: string);
-    constructor(url: string, onOpen: () => unknown,  onConnect?: () => unknown, onMessage?: (data: SocketServerMessage) => unknown, onClose?: () => unknown);
-    constructor(url: string, onOpen?: () => unknown, onConnect?: () => unknown, onMessage?: (data: SocketServerMessage) => unknown, onClose?: () => unknown) {
         this.$url = url;
-
-        this.$onOpen = onOpen;
-        this.$onConnect = onConnect;
-        this.$onMessage = onMessage;
-        this.$onClose = onClose;
 
         this.$socket = new WebSocket(url);
         this.$socket.addEventListener('open', this.onSocketOpen.bind(this));
         this.$socket.addEventListener('message', this.onSocketMessage.bind(this));
     }
 
-    private onSocketOpen() {
-        if (typeof this.$onOpen !== 'undefined') this.$onOpen();
-    }
+    private onSocketOpen(this: Socket) { this.emit('open'); }
     
-    private onSocketMessage(message: MessageEvent) {
+    private onSocketMessage(this: Socket, message: MessageEvent) {
         const data = Encryption.decrypt(message.data);
 
         if (!this.$isConnected) {
             if (data == "OK") {
                 this.$isConnected = true;
-                if (typeof this.$onConnect !== 'undefined') this.$onConnect();
+                this.emit('connect');
             }
-        } else if (this.$isConnected && typeof this.$onMessage !== 'undefined') this.$onMessage(JSON.parse(data));
+        } else if (this.$isConnected) this.emit('message', JSON.parse(data));
     }
 
     send(type: MessagesTypes): void;
@@ -68,8 +65,8 @@ export default class Socket {
         this.connect(url);
     }
 
-    close() {
+    close(this: Socket) {
+		this.emit('close');
         this.$socket.close();
-        if (typeof this.$onClose !== 'undefined') this.$onClose();
     }
 }

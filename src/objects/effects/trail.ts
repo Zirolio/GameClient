@@ -1,7 +1,9 @@
+import { Vector2 } from "ver/Vector2";
+
 import { gsap } from "gsap";
 import Cameras from "../../rendering/camera";
 import CanvasContext from "../../utils/context";
-import Vec2, { Vec2Like } from "../../utils/vec2";
+
 
 export default class Trail {
     private $ctx: CanvasContext;
@@ -40,27 +42,27 @@ export default class Trail {
     set length(length: number) { this.$length = length; }
     setLength(length: number) { this.$length = length; } */
 
-    private $follow: Vec2Like;
-    set follow(follow: Vec2Like) { this.$follow = follow; }
+    private $follow: Vector2;
+    set follow(follow: Vector2) { this.$follow = follow; }
     get follow() { return this.$follow; }
-    setFollow(follow: Vec2Like) { this.$follow = follow; return this; }
+    setFollow(follow: Vector2) { this.$follow = follow; return this; }
 
-    private $lastPosition: Vec2;
+    private $lastPosition: Vector2;
 
-    constructor(follow: Vec2Like, config: TrailConfig, ctx: CanvasContext) {
+    constructor(follow: Vector2, config: TrailConfig, ctx: CanvasContext) {
         this.$ctx = ctx;
         this.$config = config;
         this.$follow = follow;
-        this.$lastPosition = new Vec2(this.$follow);
+        this.$lastPosition = this.$follow.new();
     }
 
     update() {
         if (this.$lastPosition.x !== this.$follow.x || this.$lastPosition.y !== this.$follow.y) {
-            this.$angle = this.$lastPosition.angle(this.$follow);
+            this.$angle = this.$lastPosition.getAngleRelative(this.$follow);
         }
         
         // if (this.isStopped && this.$length > 0) this.$length = Math.max(this.$length - 5, 0);
-        if (!this.isStopped && this.$length < this.$config.length) this.$length = Math.min(this.$length + new Vec2(this.$follow).subLocal(this.$lastPosition).length(), this.$config.length);
+        if (!this.isStopped && this.$length < this.$config.length) this.$length = Math.min(this.$length + this.$follow.new().sub(this.$lastPosition).module, this.$config.length);
 
         this.$lastPosition.set(this.$follow);
     }
@@ -74,8 +76,8 @@ export default class Trail {
         ctx.lineStyle(this.$config.width, 'round');
         ctx.globalAlpha = this.$globalAlptha;
 
-        const cameraPointStart = camera.getPointPosition(new Vec2(this.$follow));
-        const endPoint = cameraPointStart.sub(Vec2.fromAngle(this.$angle).mulLocal(this.$length));
+        const cameraPointStart = camera.getPointPosition(this.$follow);
+        const endPoint = cameraPointStart.sub(Vector2.from(new Vector2().moveAngle(this.$length, this.$angle)));
 
         ctx.strokeStyle = ctx.createLinearGradient(cameraPointStart, endPoint);
         ctx.strokeStyle.addColorStop(0, this.$config.startColor);

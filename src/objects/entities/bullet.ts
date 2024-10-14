@@ -1,21 +1,24 @@
+import { Vector2 } from "ver/Vector2";
+
 import { gsap } from "gsap";
 import Camera from "../../rendering/camera";
-import { BulletNetData, NetData } from "../../types/netData";
+import { BulletNetData } from "../../types/netData";
 import CanvasContext from "../../utils/context";
-import Vec2, { Vec2Like } from "../../utils/vec2";
+
 import Trail from "../effects/trail";
 import GameObject from "../entity";
+
 
 export class Bullet extends GameObject {
     private $movementTween?: gsap.core.Tween;
     private $trail: Trail;
 
     constructor(data: BulletNetData, ctx: CanvasContext) {
-        super(data.position, data.id, ctx);
-        this.$trail = new Trail(this, { startColor: 'rgba(200, 200, 200, 1)', endColor: 'rgba(200, 200, 200, 0)', width: 5, trailCap: 'round', length: 80 }, ctx);
+        super(Vector2.from(data.position), data.id, ctx);
+        this.$trail = new Trail(this.position, { startColor: 'rgba(200, 200, 200, 1)', endColor: 'rgba(200, 200, 200, 0)', width: 5, trailCap: 'round', length: 80 }, ctx);
     }
 
-    protected drawProcess(scenePosition: Vec2, ctx: CanvasContext, camera: Camera): void {
+    protected drawProcess(scenePosition: Vector2, ctx: CanvasContext, camera: Camera): void {
         this.$trail.draw(camera);
     }
 
@@ -29,7 +32,7 @@ export class Bullet extends GameObject {
             ease: "power1.inOut"
         });
 
-        
+
         if (this.$isDestroyedByServer) {
             if (!this.$trail.isStopped) this.$trail.stop(0.2);
             if (this.$trail.length == 0) this.$isDestroyed = true;

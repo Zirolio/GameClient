@@ -1,14 +1,16 @@
-import Camera from "../rendering/camera";
+import { Vector2 } from "ver/Vector2";
+
 import { NetData } from "../types/netData";
+import Camera from "../rendering/camera";
 import CanvasContext from "../utils/context";
-import Vec2, { Vec2Like } from "../utils/vec2";
+
 
 export default abstract class Entity {
     readonly id: number;
 
     protected $ctx: CanvasContext;
 
-    protected $position: Vec2;
+    protected $position: Vector2;
     get position() { return this.$position }
     get x() { return this.$position.x; }
     get y() { return this.$position.y; }
@@ -22,10 +24,10 @@ export default abstract class Entity {
     protected $isDestroyedByServer: boolean = false;
     get isDestroyedByServer() { return this.$isDestroyedByServer }
 
-    constructor(position: Vec2Like, id: number, ctx: CanvasContext) {
+    constructor(position: Vector2, id: number, ctx: CanvasContext) {
         this.id = id;
         this.$ctx = ctx;
-        this.$position = new Vec2(position);
+        this.$position = position.new();
     }
 
     public draw(camera: Camera): void;
@@ -40,6 +42,6 @@ export default abstract class Entity {
     }
 
     public abstract update(): void;
-    protected abstract drawProcess(scenePosition: Vec2, ctx: CanvasContext, camera: Camera): void;
+    protected abstract drawProcess(scenePosition: Vector2, ctx: CanvasContext, camera: Camera): void;
     public abstract updateByServer(data: NetData): void;
 }

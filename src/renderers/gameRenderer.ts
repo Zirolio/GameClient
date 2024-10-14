@@ -6,7 +6,6 @@ import { GameConfig } from "../socket/types";
 import { BulletNetData, NetData, PlayerNetData } from "../types/netData";
 import Game from "../game";
 import { MessagesTypes } from "../socket";
-import Vec2 from "../utils/vec2";
 import InputsController from "../utils/inputsController";
 import { Bullet } from "../objects/entities/bullet";
 import Area from "../objects/area/area";
@@ -77,7 +76,7 @@ export default class GameRenderer extends Renderer {
                 const player = new Player(data as PlayerNetData, this.$ctx);
                 if (player.id == this.$gameConfig?.playerId) {
                     this.$self = player;
-                    this.$camera.startFollow(player);
+                    this.$camera.startFollow(player.position);
                 }
                 this.$entities.set(data.id, player);
                 break;

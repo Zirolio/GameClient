@@ -1,14 +1,14 @@
-import Vec2 from "./vec2";
+import { Vector2 } from "ver/Vector2";
 
 interface CircleLight {
     type: 'circle';
-    position: Vec2;
+    position: Vector2;
     radius: number;
 }
 
 interface ConicLight {
     type: 'conic';
-    position: Vec2;
+    position: Vector2;
     angle: number;
     distance: number;
     scattering: number;
