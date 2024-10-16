@@ -5,43 +5,35 @@ import type { Viewport } from 'ver/Viewport';
 import { Node } from 'lib/scenes/Node';
 import { Node2D } from 'lib/scenes/Node2D';
 import { Container, IBaseItem } from 'lib/modules/Container';
-import { IPlayerNetData } from '@/types';
+import { IBulletNetData } from '@/types';
 import { Vec2Like } from '@/utils/vec2';
 
 
-export interface IPlayerItem extends IBaseItem {
-	rotation: number;
+export interface IBulletItem extends IBaseItem {
 	position: Vec2Like;
-	MAX_HP: number;
-	HP: number;
 }
 
-export class PlayersContainer extends Node {
+export class BulletsContainer extends Node {
 	protected static override async _load(scene: typeof this): Promise<void> {
 		await super._load(scene);
-		await Player.load();
+		await Bullet.load();
 	}
 
-	public c = new Container<typeof Player, IPlayerItem>(Player, 10, (item, data) => {
+	public c = new Container<typeof Bullet, IBulletItem>(Bullet, 10, (item, data) => {
 		item.id = data.id;
-		item.rotation = data.rotation;
 		item.position.set(Vector2.from(data.position));
-		item.MAX_HP = data.MAX_HP;
-		item.HP = data.HP;
 	});
 
 	protected override async _init(): Promise<void> {
 		this.c.on('create:new', item => this.addChild(item, `item[${item.id}]`));
 	}
 
-	public updateByServer(arr: IPlayerNetData[]) {
+	public updateByServer(arr: IBulletNetData[]) {
 		for(const data of arr) {
 			const item = this.c.getById(String(data.id))!;
 
 			const update = {
 				id: String(data.id),
-				MAX_HP: 100, HP: 100,
-				rotation: 0,
 				position: Vector2.from(data.position)
 			};
 
@@ -51,50 +43,23 @@ export class PlayersContainer extends Node {
 }
 
 
-export class Player extends Node2D implements IPlayerItem {
+export class Bullet extends Node2D implements IBulletItem {
 	public id!: string;
 
-	public radius: number = 30; 
-
-	public MAX_HP: number = 100;
-	public HP: number = this.MAX_HP;
+	public radius: number = 7; 
 
 	protected override async _init(): Promise<void> {
 		this.draw_distance = this.radius;
 	}
 
-	protected override _process(dt: number): void {
-		this.HP = Math.mod(this.HP + 0.05 * dt, 0, this.MAX_HP);
-	}
-
 	protected override _draw({ ctx }: Viewport): void {
 		ctx.beginPath();
 		const grad = ctx.createRadialGradient(0, 0, this.radius, 0, 0, this.radius-10);
-		grad.addColorStop(0, '#38288e');
-		grad.addColorStop(1, '#283729');
+		grad.addColorStop(0, '#298e8f');
+		grad.addColorStop(1, '#e29ee2');
 
 		ctx.fillStyle = grad;
 		ctx.arc(0, 0, this.radius, 0, Math.TAU);
 		ctx.fill();
-
-
-		ctx.beginPath();
-		ctx.fillStyle = '#111111';
-		ctx.fillRect(20, -100, 10, 120);
-
-
-		const c = this.HP / this.MAX_HP;
-
-		ctx.rotate(-this.rotation);
-
-		ctx.beginPath();
-		ctx.strokeStyle = `#22ee22`;
-		ctx.arc(0, 0, this.radius+10, 0, Math.TAU * -c);
-		ctx.stroke();
-
-		ctx.beginPath();
-		ctx.strokeStyle = `#ee2222`;
-		ctx.arc(0, 0, this.radius+10, Math.TAU * -c, 0);
-		ctx.stroke();
 	}
 }

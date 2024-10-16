@@ -66,7 +66,7 @@ export class Socket<
     private _isConnected: boolean = false;
     public get isConnected() { return this._isConnected; }
 
-    public socket?: WebSocket;
+    protected socket?: WebSocket;
 
     constructor(url?: string) {
 		super();

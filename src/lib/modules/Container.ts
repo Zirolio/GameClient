@@ -1,9 +1,8 @@
 import { Vector2 } from 'ver/Vector2';
 import { Event, EventDispatcher } from 'ver/events';
-import { math as Math } from 'ver/helpers';
 
 
-interface IBaseItem { id: string; }
+export interface IBaseItem { id: string; }
 
 export class Container<
 	Class extends new (...args: any) => IBaseItem,
@@ -32,6 +31,7 @@ export class Container<
 
 			if(type === 'string' || type === 'number' || type === 'boolean' ||
 			   type === 'bigint' || type === 'undefined' || data[id] === null) (item as any)[id] = data[id];
+			else if(data[id] instanceof Vector2) (item as any)[id].set(data[id]);
 		}
 	}
 

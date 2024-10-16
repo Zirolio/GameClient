@@ -13,14 +13,15 @@ import { Camera2D } from 'lib/scenes/Camera2D';
 import { GridMap } from 'lib/scenes/gui/GridMap';
 import { SystemInfo } from 'lib/scenes/gui/SystemInfo';
 import { Joystick } from 'lib/scenes/gui/Joystick';
-import { Player } from '@/scenes/Player';
 
-import { keyboard, touches, viewport } from '@/canvas';
+import { Player, PlayersContainer } from '@/scenes/Player';
+import { BulletsContainer } from '@/scenes/Bullet';
+
+import { keyboard, mouse, touches, viewport } from '@/canvas';
 import { unify_input } from '@/unify-input';
-
-
-import { AudioContorller } from 'lib/AudioController';
-export const audioContorller = new AudioContorller();
+import { config, isMobule } from '@/config';
+import { api } from '@/api';
+import { EntityTypes } from '@/types/entityTypes';
 
 
 class Info extends Node2D {
@@ -63,15 +64,17 @@ export class MainScene extends Control {
 		GridMap,
 		Info,
 		SystemInfo,
-		Player,
-		Joystick
+		Joystick,
+		PlayersContainer,
+		BulletsContainer
 	}}
 	// aliases
 	public get $camera() { return this.get('Camera2D'); }
 	public get $gridMap() { return this.get('GridMap'); }
 	public get $info() { return this.get('Info'); }
 	public get $joystick() { return this.get('Joystick'); }
-	public get $player() { return this.get('Player'); }
+	public get $players() { return this.get('PlayersContainer'); }
+	public get $bullets() { return this.get('BulletsContainer'); }
 
 	public sensor_camera = new SensorCamera();
 
@@ -80,7 +83,8 @@ export class MainScene extends Control {
 	protected override async _init(this: MainScene): Promise<void> {
 		await super._init();
 
-		this.player = this.$player;
+		this.player = this.$players.c.items.find(it => it.id === String(config.game.playerId))!;
+		if(!this.player) throw new Error('this.player error');
 
 
 		this.$camera.viewport = viewport;
@@ -101,6 +105,12 @@ export class MainScene extends Control {
 		this.$info.self = this;
 
 
+		api.on('update_entities', arr => {
+			this.$bullets.updateByServer(arr.filter(it => it.entityType === EntityTypes.BULLET));
+			this.$players.updateByServer(arr.filter(it => it.entityType === EntityTypes.PLAYER));
+		});
+
+
 		viewport.on('resize', size => {
 			const s = size.new().div(2);
 
@@ -118,20 +128,30 @@ export class MainScene extends Control {
 	}
 
 	protected override _process(this: MainScene, dt: number): void {
-		if(keyboard.isPress('w') || keyboard.isDown('W')) unify_input.diration.y = -1;
-		if(keyboard.isPress('s') || keyboard.isDown('S')) unify_input.diration.y = +1;
-		if(keyboard.isPress('a') || keyboard.isDown('A')) unify_input.diration.x = -1;
-		if(keyboard.isPress('d') || keyboard.isDown('D')) unify_input.diration.x = +1;
+		if(isMobule) {
+			if(this.$joystick.touch) {
+				const { value, angle } = this.$joystick;
 
-		if(this.$joystick.touch) {
-			const { value, angle } = this.$joystick;
+				unify_input.diration.set(0).moveAngle(value, angle);
 
-			unify_input.diration.set(0).moveAngle(value, angle);
+				this.player.rotation = angle + Math.PI/2;
+				this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
+			}
+		} else {
+			const local = viewport.transformFromScreenToViewport(mouse.pos);
+			unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
 
-			this.player.rotation = angle + Math.PI/2;
-			this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
+			if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.diration.y = -1;
+			if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.diration.y = +1;
+			if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.diration.x = -1;
+			if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.diration.x = +1;
 		}
 
 		unify_input.diration.normalize();
+
+		api.unify_input();
+
+        for(let arr = this.$players.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$players.c.delete(arr[i].id);
+        for(let arr = this.$bullets.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$bullets.c.delete(arr[i].id);
 	}
 }
