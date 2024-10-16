@@ -23,7 +23,7 @@ export class Bullet extends GameObject {
     }
 
     public updateByServer(data: BulletNetData): void {
-        this.$isDestroyedByServer = data.destroyed;
+        this.isDestroyedByServer = data.destroyed;
 
         this.$movementTween = gsap.to(this.$position, {
             x: data.position.x,
@@ -33,9 +33,9 @@ export class Bullet extends GameObject {
         });
 
 
-        if (this.$isDestroyedByServer) {
+        if (this.isDestroyedByServer) {
             if (!this.$trail.isStopped) this.$trail.stop(0.2);
-            if (this.$trail.length == 0) this.$isDestroyed = true;
+            if (this.$trail.length == 0) this.isDestroyed = true;
         }
     }
 

@@ -1,4 +1,8 @@
-import Game from "./game";
+import '@/canvas';
+import '@/init';
+
+
+// import Game from "./game";
 
 
 // const shadowRenderer = new ShadowRenderer(camera, ctx);
@@ -46,6 +50,6 @@ import Game from "./game";
 
     requestAnimationFrame(render);
 } */
-const game = new Game();
+// const game = new Game();
 
 

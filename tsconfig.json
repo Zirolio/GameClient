@@ -19,7 +19,7 @@
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
-    // "noImplicitOverride": true,
+    "noImplicitOverride": true,
 	"noUncheckedSideEffectImports": true,
     "customConditions": [],
     "skipLibCheck": true,
@@ -30,6 +30,7 @@
     "outDir": "./dist/",
     "paths": {
       "ver/*": ["./src/ver/*"],
+      "lib/*": ["./src/lib/*"],
       "@/*": ["./src/*"]
     }
   },

@@ -1,9 +1,8 @@
 import { Player } from "../objects/entities/player";
 import Entity from "../objects/entity";
 import { EntityTypes } from "../types/entityTypes";
-import Renderer from "../rendering/renderer";
 import { GameConfig } from "../socket/types";
-import { BulletNetData, NetData, PlayerNetData } from "../types/netData";
+import { INetData } from "../types/netData";
 import Game from "../game";
 import { MessagesTypes } from "../socket";
 import InputsController from "../utils/inputsController";
@@ -43,8 +42,9 @@ export default class GameRenderer extends Renderer {
         this.$entities.clear();
     }
 
-    onUpdateEntities(entitiesData: NetData[]) {
-        for (const data of entitiesData) {
+//  this.$gameRenderer.onUpdateEntities(message.data as INetData[]);
+    onUpdateEntities(entitiesData: INetData[]) {
+        for(const data of entitiesData) {
             if (this.$entities.has(data.id)) this.$entities.get(data.id)!.updateByServer(data);
             else this.createEntity(data);
         }
@@ -70,18 +70,15 @@ export default class GameRenderer extends Renderer {
         clearInterval(this.$sendInputsInterval);
     }
 
-    createEntity(data: NetData) {
+    createEntity(data: INetData) {
         switch (data.entityType) {
             case EntityTypes.PLAYER:
-                const player = new Player(data as PlayerNetData, this.$ctx);
-                if (player.id == this.$gameConfig?.playerId) {
-                    this.$self = player;
-                    this.$camera.startFollow(player.position);
-                }
+                const player = new Player(data, this.$ctx);
+                if (player.id == this.$gameConfig!.playerId) this.$self = player;
                 this.$entities.set(data.id, player);
                 break;
             case EntityTypes.BULLET:
-                const bullet = new Bullet(data as BulletNetData, this.$ctx);
+                const bullet = new Bullet(data, this.$ctx);
                 this.$entities.set(data.id, bullet);
                 break;
         }
