@@ -132,7 +132,7 @@ export class MainScene extends Control {
 				if(this.$joystick.touch) {
 					const { value, angle } = this.$joystick;
 
-					unify_input.diration.set(0).moveAngle(value, angle);
+					unify_input.direction.set(0).moveAngle(value, angle);
 
 					this.player.rotation = angle + Math.PI/2;
 					this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
@@ -141,14 +141,14 @@ export class MainScene extends Control {
 				const local = viewport.transformFromScreenToViewport(mouse.pos);
 				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
 
-				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.diration.y = -1;
-				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.diration.y = +1;
-				if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.diration.x = -1;
-				if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.diration.x = +1;
+				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.direction.y = -1;
+				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.direction.y = +1;
+				if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.direction.x = -1;
+				if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.direction.x = +1;
 			}
 		}
 
-		unify_input.diration.normalize();
+		unify_input.direction.normalize();
 
 		API.UNIFY_INPUT();
 

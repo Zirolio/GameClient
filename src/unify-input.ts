@@ -6,20 +6,20 @@ import type { Vec2Like } from './utils/vec2';
 
 export interface IUnifyInputSerializeData {
 	shot: boolean;
-	diration: Vec2Like;
 	lookAngle: number;
+	direction: Vec2Like;
 }
 
 
 export const unify_input = new class UnifyInput extends EventDispatcher {
 	public shot: boolean = false;
-	public diration = new Vector2();
+	public direction = new Vector2();
 	public lookAngle: number = 0;
 
 	public getSerializeData(): IUnifyInputSerializeData {
 		const data = Object.assign({}, this) as IUnifyInputSerializeData;
 
-		data.diration = { x: this.diration.x, y: this.diration.y };
+		data.direction = { x: this.direction.x, y: this.direction.y };
 
 		return data;
 	}
