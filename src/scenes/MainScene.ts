@@ -20,7 +20,7 @@ import { BulletsContainer } from '@/scenes/Bullet';
 import { keyboard, mouse, touches, viewport } from '@/canvas';
 import { unify_input } from '@/unify-input';
 import { config, isMobule } from '@/config';
-import { api } from '@/api';
+import { API } from '@/api';
 import { EntityTypes } from '@/types/entityTypes';
 
 
@@ -83,7 +83,7 @@ export class MainScene extends Control {
 	protected override async _init(this: MainScene): Promise<void> {
 		await super._init();
 
-		this.player = this.$players.c.items.find(it => it.id === String(config.game.playerId))!;
+		this.player = this.$players.c.getById(String(config.game.playerId))!;
 		if(!this.player) throw new Error('this.player error');
 
 
@@ -105,7 +105,7 @@ export class MainScene extends Control {
 		this.$info.self = this;
 
 
-		api.on('update_entities', arr => {
+		API.on('update_entities', arr => {
 			this.$bullets.updateByServer(arr.filter(it => it.entityType === EntityTypes.BULLET));
 			this.$players.updateByServer(arr.filter(it => it.entityType === EntityTypes.PLAYER));
 		});
@@ -149,7 +149,7 @@ export class MainScene extends Control {
 
 		unify_input.diration.normalize();
 
-		api.unify_input();
+		API.UNIFY_INPUT();
 
         for(let arr = this.$players.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$players.c.delete(arr[i].id);
         for(let arr = this.$bullets.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$bullets.c.delete(arr[i].id);

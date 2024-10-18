@@ -43,7 +43,7 @@ export class PlayersContainer extends Node {
 				MAX_HP: 100, HP: 100,
 				rotation: 0,
 				position: Vector2.from(data.position)
-			};
+			} satisfies IPlayerItem;
 
 			this.c.assign(item, update);
 		}

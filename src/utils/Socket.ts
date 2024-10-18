@@ -51,13 +51,16 @@ export class Socket<
 	const ServerToClient extends EventsMap = DefaultEventsMap,
 	const ClientToServer extends EventsMap = DefaultEventsMap
 > extends EventDispatcher {
-	public '@open' = new Event<Socket, []>(this);
-	public '@close' = new Event<Socket, [e: CloseEvent]>(this);
-	public '@error' = new Event<Socket, []>(this);
-	public '@connect' = new Event<Socket, []>(this);
-	public '@message' = new Event<Socket, [e: MessageEvent]>(this);
+	public '@open' = new Event<Socket<ServerToClient, ClientToServer>, []>(this);
+	public '@close' = new Event<Socket<ServerToClient, ClientToServer>, [e: CloseEvent]>(this);
+	public '@error' = new Event<Socket<ServerToClient, ClientToServer>, []>(this);
+	public '@connect' = new Event<Socket<ServerToClient, ClientToServer>, []>(this);
+	public '@message' = new Event<Socket<ServerToClient, ClientToServer>, [e: MessageEvent]>(this);
 
-	public '@NotificationMessage' = new Event<Socket, [uri: string, args: any[]]>(this);
+	public '@NotificationMessage' = new Event<Socket<ServerToClient, ClientToServer>, [uri: string, args: any[]]>(this);
+	public typedNotificationMessage<T extends keyof ServerToClient>() {
+		return this['@NotificationMessage'] as any as Event<Socket<ServerToClient, ClientToServer>, Parameters<ServerToClient[T]>>;
+	}
 
 
 	private _url: string = '';
@@ -92,13 +95,25 @@ export class Socket<
 			const msg = JSON.parse(data);
 
 			// if(msg[0] === MessageType.NOTIFICATION) { // [type, uri, args]
-				this._notification_message(msg[0], msg[1]);
-				this['@NotificationMessage'].emit(msg[0], msg[1]);
+				this._notification_message(msg[0], [msg[1]] as any);
+				this['@NotificationMessage'].emit(msg[0], [msg[1]]);
 			// } else throw new Error('unknown message');
 		}
     }
 
 	protected _notification_message<T extends keyof ServerToClient>(uri: T, args: Parameters<ServerToClient[T]>) {}
+
+	public send<T extends keyof ClientToServer>(uri: T, ...args: Parameters<ClientToServer[T]>): void {
+		if(!this.socket) throw new Error('Socket not inited');
+
+        if(this.socket.readyState == this.socket.OPEN) {
+            // const event = JSON.stringify([MessageType.NOTIFICATION, uri, JSON.stringify(args)]);
+            const event = JSON.stringify([uri, JSON.stringify(args[0])]);
+
+            this.socket.send(Encryption.encrypt(event));
+        }
+    }
+
 
 	public connect(url: string): Promise<this> {
 		if(this.socket) {
@@ -113,11 +128,14 @@ export class Socket<
         this.socket = new WebSocket(url);
 
         this.socket.onopen = () => {
+			console.log('Socket OPEN');
 			this._open();
 			this['@open'].emit();
 		};
 
         this.socket.onmessage = e => {
+			console.log('Socket MESSAGE');
+			console.log('row data', e.data);
 			this._message(e);
 			this['@message'].emit(e);
 		};
@@ -132,24 +150,13 @@ export class Socket<
 			this['@error'].emit();
 		};
 
-		return new Promise<this>(res => (this as Socket).on('connect', () => res(this)));
+		return new Promise<this>(res => this['@connect'].on(() => res(this)));
 	}
 
-	public close(this: Socket) { this.socket?.close(); }
+	public close() { this.socket?.close(); }
 
 	public reconnect(url: string = this.url): void {
 		this.close();
 		this.connect(url);
 	}
-
-	public send<T extends keyof ClientToServer>(uri: T, ...args: Parameters<ClientToServer[T]>): void {
-		if(!this.socket) throw new Error('Socket not inited');
-
-        if(this.socket.readyState == this.socket.OPEN) {
-            // const event = JSON.stringify([MessageType.NOTIFICATION, uri, JSON.stringify(args)]);
-            const event = JSON.stringify([uri, JSON.stringify(args)]);
-
-            this.socket.send(Encryption.encrypt(event));
-        }
-    }
 }

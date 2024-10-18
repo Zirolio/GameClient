@@ -6,28 +6,30 @@ import { mainloop } from '@/canvas';
 import { createSocketApi } from '@/utils/Socket';
 import { unify_input } from '@/unify-input';
 
-import type { GameConfig, INetData } from './types';
+import type { GameConfig, INetData } from '@/types';
 
 
-socket.on('open', () => api.player_ready());
-socket.on('close', () => api.player_close());
-socket.on('connect', () => api.player_config());
+socket.on('open', () => API.PLAYER_READY());
+socket.on('close', () => API.PLAYER_CLOSE());
+socket.on('connect', () => API.PLAYER_CONFIG());
 
 
-export const api = Object.assign(new class ServerApi extends EventDispatcher {
+export const API = Object.assign(new class API extends EventDispatcher {
 	public '@update_entities' = new Event<this, [data: INetData[]]>(this);
 }, createSocketApi(socket, {
-	game_config(data: GameConfig) {
+	SERVER_GAME_CONFIG(data: GameConfig) {
 		Object.assign(config.game, data);
 
 		mainloop.start();
 	},
-	update_entities(data: INetData[]) {
-		api.emit('update_entities', data);
+
+	SERVER_UPDATE_ENTITIES(data: INetData[]) {
+		API.emit('update_entities', data);
 	}
 }, {
-	player_ready() {},
-	player_close() {},
-	player_config() {},
-	unify_input: (data = unify_input.getSerializeData()) => data
+	PLAYER_READY() {},
+	PLAYER_CLOSE() {},
+	PLAYER_CONFIG() {},
+
+	UNIFY_INPUT: (data = unify_input.getSerializeData()) => data
 }));

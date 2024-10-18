@@ -8,9 +8,11 @@ import { Container, IBaseItem } from 'lib/modules/Container';
 import { IBulletNetData } from '@/types';
 import { Vec2Like } from '@/utils/vec2';
 
+// TODO: deleting items
 
 export interface IBulletItem extends IBaseItem {
 	position: Vec2Like;
+	bulletType: number;
 }
 
 export class BulletsContainer extends Node {
@@ -34,8 +36,9 @@ export class BulletsContainer extends Node {
 
 			const update = {
 				id: String(data.id),
-				position: Vector2.from(data.position)
-			};
+				position: Vector2.from(data.position),
+				bulletType: data.bulletType
+			} satisfies IBulletItem;
 
 			this.c.assign(item, update);
 		}
@@ -44,6 +47,7 @@ export class BulletsContainer extends Node {
 
 
 export class Bullet extends Node2D implements IBulletItem {
+	public bulletType!: number;
 	public id!: string;
 
 	public radius: number = 7; 

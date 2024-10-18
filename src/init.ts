@@ -1,3 +1,5 @@
+import { delay } from 'ver/helpers';
+
 import { Node } from 'lib/scenes/Node';
 import { ProcessSystem } from 'lib/scenes/Node';
 import { RenderSystem } from 'lib/scenes/CanvasItem';
@@ -37,7 +39,28 @@ mainloop.on('update', dt => { for(const anim of anims.anims) anim.tick(dt); }, -
 
 
 (async () => {
-	await socket.connect('ws://localhost:5000/server');
+	await Promise.all([socket.connect('ws://localhost:5000/server'), (async () => {
+		console.log('connecting...');
+
+		let i = 0; while(true) {
+			if(socket.isConnected) {
+				console.log('connected');
+
+				GUIElement.innerHTML = `<h2 style="color: #eeeeee; font-family: arkhip">Connected</h2>`;
+				await delay(200);
+				GUIElement.innerHTML = ``;
+
+				break;
+			}
+
+			GUIElement.innerHTML = `<h2 style="color: #eeeeee; font-family: arkhip">
+				Connecting to server${'.'.repeat(i = ++i % 4)}
+			</h2>`;
+
+			if(!socket.isConnected) await delay(500);
+		}
+	})()]);
+
 
 	await Node.load();
 	const root_node = new Node();
