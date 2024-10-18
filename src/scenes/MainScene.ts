@@ -78,13 +78,12 @@ export class MainScene extends Control {
 
 	public sensor_camera = new SensorCamera();
 
-	private player!: Player;
+	private player: Player | null = null;
 
 	protected override async _init(this: MainScene): Promise<void> {
 		await super._init();
 
-		this.player = this.$players.c.getById(String(config.game.playerId))!;
-		if(!this.player) throw new Error('this.player error');
+		this.player = this.$players.c.getById(String(config.game.playerId)) || null;
 
 
 		this.$camera.viewport = viewport;
@@ -93,7 +92,7 @@ export class MainScene extends Control {
 		this.$camera.on('PreProcess', dt => {
 			if(!this.$joystick.touch) this.sensor_camera.update(dt, touches, this.$camera);
 
-			this.$camera.position.moveTime(this.player.position, 5);
+			if(this.player) this.$camera.position.moveTime(this.player.position, 5);
 
 			this.$gridMap.scroll.set(this.$camera.position);
 			this.$gridMap.position.set(this.$camera.position);
@@ -128,23 +127,25 @@ export class MainScene extends Control {
 	}
 
 	protected override _process(this: MainScene, dt: number): void {
-		if(isMobule) {
-			if(this.$joystick.touch) {
-				const { value, angle } = this.$joystick;
+		if(this.player) {
+			if(isMobule) {
+				if(this.$joystick.touch) {
+					const { value, angle } = this.$joystick;
 
-				unify_input.diration.set(0).moveAngle(value, angle);
+					unify_input.diration.set(0).moveAngle(value, angle);
 
-				this.player.rotation = angle + Math.PI/2;
-				this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
+					this.player.rotation = angle + Math.PI/2;
+					this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
+				}
+			} else {
+				const local = viewport.transformFromScreenToViewport(mouse.pos);
+				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
+
+				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.diration.y = -1;
+				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.diration.y = +1;
+				if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.diration.x = -1;
+				if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.diration.x = +1;
 			}
-		} else {
-			const local = viewport.transformFromScreenToViewport(mouse.pos);
-			unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
-
-			if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.diration.y = -1;
-			if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.diration.y = +1;
-			if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.diration.x = -1;
-			if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.diration.x = +1;
 		}
 
 		unify_input.diration.normalize();

@@ -107,8 +107,8 @@ export class Socket<
 		if(!this.socket) throw new Error('Socket not inited');
 
         if(this.socket.readyState == this.socket.OPEN) {
-            // const event = JSON.stringify([MessageType.NOTIFICATION, uri, JSON.stringify(args)]);
-            const event = JSON.stringify([uri, JSON.stringify(args[0])]);
+            // const event = JSON.stringify([MessageType.NOTIFICATION, uri, args]);
+            const event = JSON.stringify(args[0] ? [uri, args[0]] : [uri]);
 
             this.socket.send(Encryption.encrypt(event));
         }
@@ -128,14 +128,11 @@ export class Socket<
         this.socket = new WebSocket(url);
 
         this.socket.onopen = () => {
-			console.log('Socket OPEN');
 			this._open();
 			this['@open'].emit();
 		};
 
         this.socket.onmessage = e => {
-			console.log('Socket MESSAGE');
-			console.log('row data', e.data);
 			this._message(e);
 			this['@message'].emit(e);
 		};

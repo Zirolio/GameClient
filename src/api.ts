@@ -9,7 +9,7 @@ import { unify_input } from '@/unify-input';
 import type { GameConfig, INetData } from '@/types';
 
 
-socket.on('open', () => API.PLAYER_READY());
+socket.on('open', () => API.PLAYER_CONNECT());
 socket.on('close', () => API.PLAYER_CLOSE());
 socket.on('connect', () => API.PLAYER_CONFIG());
 
@@ -18,6 +18,7 @@ export const API = Object.assign(new class API extends EventDispatcher {
 	public '@update_entities' = new Event<this, [data: INetData[]]>(this);
 }, createSocketApi(socket, {
 	SERVER_GAME_CONFIG(data: GameConfig) {
+		console.log(data);
 		Object.assign(config.game, data);
 
 		mainloop.start();
@@ -27,7 +28,7 @@ export const API = Object.assign(new class API extends EventDispatcher {
 		API.emit('update_entities', data);
 	}
 }, {
-	PLAYER_READY() {},
+	PLAYER_CONNECT() {},
 	PLAYER_CLOSE() {},
 	PLAYER_CONFIG() {},
 
