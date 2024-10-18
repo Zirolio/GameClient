@@ -155,8 +155,6 @@ export class MainScene extends Control {
 		}
 
 
-		console.log(unify_input.direction.toString());
-
 		API.UNIFY_INPUT();
 
         for(let arr = this.$players.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$players.c.delete(arr[i].id);

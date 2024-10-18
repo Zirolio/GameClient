@@ -147,7 +147,10 @@ export class Socket<
 			this['@error'].emit();
 		};
 
-		return new Promise<this>(res => this['@connect'].on(() => res(this)));
+		return new Promise<this>((res, rej) => {
+			this['@connect'].on(() => res(this));
+			this['@error'].on(() => rej(new Error(`Socket connect error (${this.url})`)));
+		});
 	}
 
 	public close() { this.socket?.close(); }

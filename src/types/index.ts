@@ -1,6 +1,5 @@
-import { IUnifyInputSerializeData } from "@/unify-input";
-import { EntityTypes } from "../types/entityTypes";
-import { Vec2Like } from "../utils/vec2";
+import { Vec2Like } from '@/utils/vec2';
+import { EntityTypes } from './entityTypes';
 
 
 export interface AreaConfig {
@@ -25,6 +24,7 @@ export interface IBaseNetData {
 export interface IPlayerNetData extends IBaseNetData {
 	entityType: EntityTypes.PLAYER;
     position: Vec2Like;
+	rotation: number;
 }
 
 export interface IBulletNetData extends IBaseNetData {

@@ -45,6 +45,7 @@ export class PlayersContainer extends Node {
 				position: Vector2.from(data.position)
 			});
 			else {
+				item.rotation = data.rotation;
 				item.position.set(Vector2.from(data.position));
 			}
 		}

@@ -38,28 +38,55 @@ export const anims = new AnimationManager();
 mainloop.on('update', dt => { for(const anim of anims.anims) anim.tick(dt); }, -200);
 
 
+const write_address = Promise.withResolvers<string>();
+
+const input_address = document.createElement('input');
+input_address.value = 'localhost:5000';
+input_address.placeholder = 'address';
+input_address.inputMode = 'search';
+input_address.onkeyup = e => e.key === 'Enter' && write_address.resolve(input_address.value);
+
+GUIElement.append(input_address);
+
 (async () => {
-	await Promise.all([socket.connect('ws://localhost:5000/server'), (async () => {
-		console.log('connecting...');
+	try {
+		let error: string = '';
 
-		let i = 0; while(true) {
-			if(socket.isConnected) {
-				console.log('connected');
+		const address = await write_address.promise;
 
-				GUIElement.innerHTML = `<h2 style="color: #eeeeee; font-family: arkhip">Connected</h2>`;
-				await delay(200);
-				GUIElement.innerHTML = ``;
+		await Promise.all([socket.connect(`ws://${address}/server`), (async () => {
+			console.log('connecting...');
 
-				break;
+			delay(10000, () => {
+				if(!socket.isConnected) error = `Connect error timeout (${address})`;
+			});
+
+			let i = 0; while(true) {
+				if(error) break;
+
+				if(socket.isConnected) {
+					console.log('connected');
+
+					GUIElement.innerHTML = `<h2 style="color: #eeeeee; font-family: arkhip">Connected</h2>`;
+					await delay(200);
+					GUIElement.innerHTML = ``;
+
+					break;
+				}
+
+				GUIElement.innerHTML = `<h2 style="color: #eeeeee; font-family: arkhip">
+					Connecting to server${'.'.repeat(i = ++i % 4)}
+				</h2>`;
+
+				if(!socket.isConnected) await delay(500);
 			}
 
-			GUIElement.innerHTML = `<h2 style="color: #eeeeee; font-family: arkhip">
-				Connecting to server${'.'.repeat(i = ++i % 4)}
-			</h2>`;
-
-			if(!socket.isConnected) await delay(500);
-		}
-	})()]);
+			if(error) throw error;
+		})()]);
+	} catch(err) {
+		console.error(err);
+		GUIElement.innerHTML = `<h4 style="color: #ee7777; font-family: arkhip">${err}<h4>`;
+	}
 
 
 	await Node.load();
