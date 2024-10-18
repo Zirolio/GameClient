@@ -31,21 +31,22 @@ export class PlayersContainer extends Node {
 	});
 
 	protected override async _init(): Promise<void> {
-		this.c.on('create:new', item => this.addChild(item, `item[${item.id}]`));
+		this.c.on('create:new', item => item.init().then(() => this.addChild(item, `item[${item.id}]`)));
 	}
 
 	public updateByServer(arr: IPlayerNetData[]) {
 		for(const data of arr) {
-			const item = this.c.getById(String(data.id))!;
+			let item = this.c.getById(String(data.id));
 
-			const update = {
+			if(!item) this.c.create({
 				id: String(data.id),
 				MAX_HP: 100, HP: 100,
 				rotation: 0,
 				position: Vector2.from(data.position)
-			} satisfies IPlayerItem;
-
-			this.c.assign(item, update);
+			});
+			else {
+				item.position.set(Vector2.from(data.position));
+			}
 		}
 	}
 }

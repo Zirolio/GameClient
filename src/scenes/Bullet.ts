@@ -32,15 +32,16 @@ export class BulletsContainer extends Node {
 
 	public updateByServer(arr: IBulletNetData[]) {
 		for(const data of arr) {
-			const item = this.c.getById(String(data.id))!;
+			let item = this.c.getById(String(data.id));
 
-			const update = {
+			if(!item) this.c.create({
 				id: String(data.id),
-				position: Vector2.from(data.position),
-				bulletType: data.bulletType
-			} satisfies IBulletItem;
-
-			this.c.assign(item, update);
+				bulletType: data.bulletType,
+				position: Vector2.from(data.position)
+			});
+			else {
+				item.position.set(Vector2.from(data.position));
+			}
 		}
 	}
 }

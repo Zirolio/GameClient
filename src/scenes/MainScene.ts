@@ -85,6 +85,10 @@ export class MainScene extends Control {
 
 		this.player = this.$players.c.getById(String(config.game.playerId)) || null;
 
+		this.$players.c.on('create', item => {
+			if(item.id === String(config.game.playerId)) item.init().then(() => this.player = item);
+		});
+
 
 		this.$camera.viewport = viewport;
 		this.$camera.current = true;
@@ -129,7 +133,7 @@ export class MainScene extends Control {
 	protected override _process(this: MainScene, dt: number): void {
 		if(this.player) {
 			if(isMobule) {
-				if(this.$joystick.touch) {
+				if(this.$joystick.value >= 0.01) {
 					const { value, angle } = this.$joystick;
 
 					unify_input.direction.set(0).moveAngle(value, angle);
@@ -145,10 +149,13 @@ export class MainScene extends Control {
 				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.direction.y = +1;
 				if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.direction.x = -1;
 				if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.direction.x = +1;
+
+				unify_input.direction.normalize();
 			}
 		}
 
-		unify_input.direction.normalize();
+
+		console.log(unify_input.direction.toString());
 
 		API.UNIFY_INPUT();
 

@@ -18,7 +18,6 @@ export const API = Object.assign(new class API extends EventDispatcher {
 	public '@update_entities' = new Event<this, [data: INetData[]]>(this);
 }, createSocketApi(socket, {
 	SERVER_GAME_CONFIG(data: GameConfig) {
-		console.log(data);
 		Object.assign(config.game, data);
 
 		mainloop.start();
