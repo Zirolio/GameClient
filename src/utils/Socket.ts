@@ -33,8 +33,11 @@ export const createSocketApi = <
 		const data = (api as any)[uri](...args);
 
 		if(typeof data === 'undefined') (socket as any).send($(uri));
-		else if(Array.isArray(data)) (socket as any).send($(uri), data);
-		else (socket as any).send($(uri), [data]);
+		else (socket as any).send($(uri), data);
+
+		// if(typeof data === 'undefined') (socket as any).send($(uri));
+		// else if(Array.isArray(data)) (socket as any).send($(uri), ...data);
+		// else (socket as any).send($(uri), data);
 	}
 
 	return socketApi;
