@@ -14,10 +14,10 @@ export class KeyboardController extends EventDispatcher {
 	protected _keys_up: Record<Key, boolean> = Object.create(null);
 	protected _keys_press: Record<Key, boolean> = Object.create(null);
 
-	constructor(el: HTMLElement) {
+	constructor() {
 		super();
 
-		el.addEventListener('keydown', e => {
+		window.addEventListener('keydown', e => {
 			const key = e.key as Key;
 
 			if(!this._keys_down[key]) {
@@ -30,7 +30,7 @@ export class KeyboardController extends EventDispatcher {
 			this['@keydown'].emit(key);
 		});
 
-		el.addEventListener('keyup', e => {
+		window.addEventListener('keyup', e => {
 			const key = e.key as Key;
 
 			this._keys_down[key] = false;

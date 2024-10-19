@@ -141,8 +141,8 @@ export class MainScene extends Control {
 
 					unify_input.direction.set(0).moveAngle(value, angle);
 
-					this.player.rotation = angle + Math.PI/2;
-					this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
+					// this.player.rotation = angle + Math.PI/2;
+					// this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
 				}
 			} else {
 				const local = viewport.transformFromScreenToViewport(mouse.pos);
