@@ -1,7 +1,7 @@
 import { GameConfig } from './types';
 
 
-export const isMobule = true;
+export const isMobile = true;
 
 
 export const config = {

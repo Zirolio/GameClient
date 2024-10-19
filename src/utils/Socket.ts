@@ -108,7 +108,7 @@ export class Socket<
 
         if(this.socket.readyState == this.socket.OPEN) {
             // const event = JSON.stringify([MessageType.NOTIFICATION, uri, args]);
-            const event = JSON.stringify(args[0] ? [uri, args[0]] : [uri]);
+            const event = JSON.stringify(args.length ? [uri, args[0]] : [uri]);
 
             this.socket.send(Encryption.encrypt(event));
         }

@@ -6,18 +6,20 @@ import { RenderSystem } from 'lib/scenes/CanvasItem';
 import { ControllersSystem } from 'lib/scenes/Control';
 
 import { AnimationManager } from '@/animations';
-import { canvas, mainloop, touches, viewport } from '@/canvas';
+import { canvas, keyboard, mainloop, mouse, touches, viewport } from '@/canvas';
 import { socket } from '@/socket';
+import { isMobile } from './config';
 
 import { MainScene } from '@/scenes/MainScene';
 
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 //@ts-ignore
-window.ondblclick = () => app.webkitRequestFullscreen();
+if(!isMobile) window.ondblclick = () => app.webkitRequestFullscreen();
+//@ts-ignore
+else window.onkeyup = e => e.key === 'F11' && app.webkitRequestFullscreen();
 
 const GUIElement = document.querySelector<HTMLDivElement>('#GUI')!;
-GUIElement; // NOTE: можно подключить react или что то еще по желанию
 
 
 canvas.on('resize', size => viewport.size.set(size), 1000).call(canvas, canvas.size, canvas.pixelRatio);
@@ -32,6 +34,8 @@ mainloop.on('update', dt => processSystem.update(dt), -50);
 mainloop.on('update', () => renderSystem.update(viewport), -100);
 mainloop.on('update', () => canvas.render(), -100);
 mainloop.on('update', dt => touches.nullify(dt), -10000);
+mainloop.on('update', dt => keyboard.nullify(dt), -10000);
+mainloop.on('update', dt => mouse.nullify(dt), -10000);
 
 
 export const anims = new AnimationManager();
