@@ -3,11 +3,6 @@ import { Event, EventDispatcher } from 'ver/events';
 import Encryption from '@/utils/encryption';
 
 
-// export enum MessageType {
-// 	NOTIFICATION
-// }
-
-// export type NotificationMessage<Key extends string = string, Args extends any[] = any[]> = [MessageType.NOTIFICATION, Key, Args];
 export type NotificationMessage<Key extends string = string, Args extends any[] = any[]> = [Key, Args];
 
 export type Message<Key extends string, Args extends any[]> = NotificationMessage<Key, Args>;
@@ -15,9 +10,6 @@ export type Message<Key extends string, Args extends any[]> = NotificationMessag
 
 export interface EventsMap { [event: string]: any; }
 export interface DefaultEventsMap { [event: string]: (...args: any[]) => void; }
-
-// type Unify<T> = T extends void | undefined ? [] : T extends any[] ? T : [T];
-
 
 export const createSocketApi = <
 	const Handlers extends Record<string, (...args: any[]) => unknown>,
@@ -32,12 +24,7 @@ export const createSocketApi = <
 	for(const uri in api) (socketApi as any)[uri] = (...args: any) => {
 		const data = (api as any)[uri](...args);
 
-		if(typeof data === 'undefined') (socket as any).send($(uri));
-		else (socket as any).send($(uri), data);
-
-		// if(typeof data === 'undefined') (socket as any).send($(uri));
-		// else if(Array.isArray(data)) (socket as any).send($(uri), ...data);
-		// else (socket as any).send($(uri), data);
+		if(typeof data !== 'undefined') (socket as any).send($(uri), data);
 	}
 
 	return socketApi;
@@ -97,10 +84,8 @@ export class Socket<
         } else if(this._isConnected) {
 			const msg = JSON.parse(data);
 
-			// if(msg[0] === MessageType.NOTIFICATION) { // [type, uri, args]
-				this._notification_message(msg[0], [msg[1]] as any);
-				this['@NotificationMessage'].emit(msg[0], [msg[1]]);
-			// } else throw new Error('unknown message');
+			this._notification_message(msg[0], [msg[1]] as any);
+			this['@NotificationMessage'].emit(msg[0], [msg[1]]);
 		}
     }
 
@@ -110,7 +95,6 @@ export class Socket<
 		if(!this.socket) throw new Error('Socket not inited');
 
         if(this.socket.readyState == this.socket.OPEN) {
-            // const event = JSON.stringify([MessageType.NOTIFICATION, uri, args]);
             const event = JSON.stringify(args.length ? [uri, args[0]] : [uri]);
 
             this.socket.send(Encryption.encrypt(event));

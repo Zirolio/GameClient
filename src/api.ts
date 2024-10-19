@@ -15,6 +15,8 @@ socket.on('connect', () => API.PLAYER_CONFIG());
 
 
 export const API = Object.assign(new class API extends EventDispatcher {
+	public isInputPushed: boolean = false;
+
 	public '@update_entities' = new Event<this, [data: INetData[]]>(this);
 }, createSocketApi(socket, {
 	SERVER_GAME_CONFIG(data: GameConfig) {
@@ -27,9 +29,14 @@ export const API = Object.assign(new class API extends EventDispatcher {
 		API.emit('update_entities', data);
 	}
 }, {
-	PLAYER_CONNECT: () => {},
-	PLAYER_CLOSE: () => {},
-	PLAYER_CONFIG: () => {},
+	PLAYER_CONNECT: () => null,
+	PLAYER_CLOSE: () => null,
+	PLAYER_CONFIG: () => null,
 
-	PLAYER_INPUT: (data = unify_input.getSerializeData()) => data
+	PLAYER_INPUT: (data = unify_input.getSerializeData()) => {
+		if(API.isInputPushed) return;
+		API.isInputPushed = true;
+
+		return data;
+	}
 }));

@@ -52,7 +52,7 @@ class Info extends Node2D {
 
 
 export class MainScene extends Control {
-	protected static override async _load(scene: typeof this): Promise<void> {
+	protected static override async _load(scene: typeof MainScene): Promise<void> {
 		await Sprite.load();
 		await super._load(scene);
 
@@ -146,6 +146,7 @@ export class MainScene extends Control {
 				}
 			} else {
 				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
+
 				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local) + Math.PI/2;
 
 				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.direction.y = -1;
@@ -155,10 +156,10 @@ export class MainScene extends Control {
 
 				if(!unify_input.direction.isSame(Vector2.ZERO)) unify_input.direction.normalize();
 			}
+
+			API.PLAYER_INPUT();
 		}
 
-
-		if(!unify_input.direction.isSame(Vector2.ZERO)) API.PLAYER_INPUT();
 
         for(let arr = this.$players.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$players.c.delete(arr[i].id);
         for(let arr = this.$bullets.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$bullets.c.delete(arr[i].id);

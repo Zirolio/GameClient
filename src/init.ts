@@ -9,6 +9,8 @@ import { AnimationManager } from '@/animations';
 import { canvas, keyboard, mainloop, mouse, touches, viewport } from '@/canvas';
 import { socket } from '@/socket';
 import { isMobile } from './config';
+import { unify_input } from '@/unify-input';
+import { API } from '@/api';
 
 import { MainScene } from '@/scenes/MainScene';
 
@@ -35,6 +37,7 @@ mainloop.on('update', dt => controllersSystem.update(dt), 1000);
 mainloop.on('update', dt => processSystem.update(dt), -50);
 mainloop.on('update', () => renderSystem.update(viewport), -100);
 mainloop.on('update', () => canvas.render(), -100);
+
 mainloop.on('update', dt => touches.nullify(dt), -10000);
 mainloop.on('update', dt => keyboard.nullify(dt), -10000);
 mainloop.on('update', dt => mouse.nullify(dt), -10000);
@@ -42,6 +45,9 @@ mainloop.on('update', dt => mouse.nullify(dt), -10000);
 
 export const anims = new AnimationManager();
 mainloop.on('update', dt => { for(const anim of anims.anims) anim.tick(dt); }, -200);
+
+
+unify_input.on('change', () => API.isInputPushed = false);
 
 
 const write_address = Promise.withResolvers<string>();

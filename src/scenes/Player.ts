@@ -17,7 +17,7 @@ export interface IPlayerItem extends IBaseItem {
 }
 
 export class PlayersContainer extends Node {
-	protected static override async _load(scene: typeof this): Promise<void> {
+	protected static override async _load(scene: typeof PlayersContainer): Promise<void> {
 		await super._load(scene);
 		await Player.load();
 	}

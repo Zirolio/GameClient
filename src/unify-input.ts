@@ -12,13 +12,32 @@ export interface IUnifyInputSerializeData {
 
 
 export const unify_input = new class UnifyInput extends EventDispatcher {
-	public shot: boolean = false;
-	public direction = new Vector2();
-	public lookAngle: number = 0;
+	public '@change' = new Event<this, []>(this);
+
+	public _shot: boolean = false;
+	public get shot() { return this._shot; }
+	public set shot(v) {
+		if(this._shot === v) return;
+		this._shot = v;
+		this['@change'].emit();
+	}
+
+	public _lookAngle: number = 0;
+	public get lookAngle() { return this._lookAngle; }
+	public set lookAngle(v) {
+		if(this._lookAngle === v) return;
+		this._lookAngle = v;
+		this['@change'].emit();
+	}
+
+	public _direction = new Vector2();
+	public direction = new Vector2(0, 0, vec => !vec.isSame(this._direction) && this['@change'].emit());
 
 	public getSerializeData(): IUnifyInputSerializeData {
-		const data = Object.assign({}, this) as IUnifyInputSerializeData;
+		const data = Object.create(null) as IUnifyInputSerializeData;
 
+		data.shot = this.shot
+		data.lookAngle = this.lookAngle;
 		data.direction = { x: this.direction.x, y: this.direction.y };
 
 		return data;

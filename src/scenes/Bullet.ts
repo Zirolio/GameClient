@@ -16,7 +16,7 @@ export interface IBulletItem extends IBaseItem {
 }
 
 export class BulletsContainer extends Node {
-	protected static override async _load(scene: typeof this): Promise<void> {
+	protected static override async _load(scene: typeof BulletsContainer): Promise<void> {
 		await super._load(scene);
 		await Bullet.load();
 	}
