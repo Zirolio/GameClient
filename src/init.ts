@@ -8,14 +8,16 @@ import { ControllersSystem } from 'lib/scenes/Control';
 import { AnimationManager } from '@/animations';
 import { canvas, keyboard, mainloop, mouse, touches, viewport } from '@/canvas';
 import { socket } from '@/socket';
-import { isMobile } from './config';
 
 import { MainScene } from '@/scenes/MainScene';
+import PromiseWithResolvers from './utils/PromiseWithResolvers';
+import { isMobile } from './config';
 
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
+
 //@ts-ignore
-if(!isMobile) window.ondblclick = () => app.webkitRequestFullscreen();
+if(!isMobile) if (isMobile) window.ondblclick = () => app.webkitRequestFullscreen(); // Fullscreen
 //@ts-ignore
 else window.onkeyup = e => e.key === 'F11' && app.webkitRequestFullscreen();
 
@@ -36,13 +38,15 @@ mainloop.on('update', () => canvas.render(), -100);
 mainloop.on('update', dt => touches.nullify(dt), -10000);
 mainloop.on('update', dt => keyboard.nullify(dt), -10000);
 mainloop.on('update', dt => mouse.nullify(dt), -10000);
+mainloop.on('update', dt => keyboard.nullify(dt), -10000);
+mainloop.on('update', dt => mouse.nullify(dt), -10000);
 
 
 export const anims = new AnimationManager();
 mainloop.on('update', dt => { for(const anim of anims.anims) anim.tick(dt); }, -200);
 
 
-const write_address = Promise.withResolvers<string>();
+const write_address = new PromiseWithResolvers<string>();
 
 const input_address = document.createElement('input');
 input_address.value = 'localhost:5000';
@@ -52,11 +56,12 @@ input_address.onkeyup = e => e.key === 'Enter' && write_address.resolve(input_ad
 
 GUIElement.append(input_address);
 
+
 (async () => {
 	try {
 		let error: string = '';
 
-		const address = await write_address.promise;
+		const address = await write_address;
 
 		await Promise.all([socket.connect(`ws://${address}/server`), (async () => {
 			console.log('connecting...');

@@ -52,7 +52,7 @@ class Info extends Node2D {
 
 
 export class MainScene extends Control {
-	protected static override async _load(scene: typeof this): Promise<void> {
+	protected static override async _load(scene: typeof MainScene): Promise<void> {
 		await Sprite.load();
 		await super._load(scene);
 
@@ -148,17 +148,17 @@ export class MainScene extends Control {
 				const local = viewport.transformFromScreenToViewport(mouse.pos);
 				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
 
-				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.direction.y = -1;
-				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.direction.y = +1;
-				if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.direction.x = -1;
-				if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.direction.x = +1;
+				if(keyboard.isDown('w', true)) unify_input.direction.y = -1;
+				if(keyboard.isDown('s', true)) unify_input.direction.y = +1;
+				if(keyboard.isDown('a', true)) unify_input.direction.x = -1;
+				if(keyboard.isDown('d', true)) unify_input.direction.x = +1;
 
 				if(!unify_input.direction.isSame(Vector2.ZERO)) unify_input.direction.normalize();
 			}
 		}
 
 
-		API.UNIFY_INPUT();
+		API.PLAYER_INPUT();
 
         for(let arr = this.$players.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$players.c.delete(arr[i].id);
         for(let arr = this.$bullets.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$bullets.c.delete(arr[i].id);

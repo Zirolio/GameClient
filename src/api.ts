@@ -4,7 +4,7 @@ import { config } from '@/config';
 import { socket } from '@/socket';
 import { mainloop } from '@/canvas';
 import { createSocketApi } from '@/utils/Socket';
-import { unify_input } from '@/unify-input';
+import { IUnifyInputSerializeData, unify_input } from '@/unify-input';
 
 import type { GameConfig, INetData } from '@/types';
 
@@ -31,5 +31,5 @@ export const API = Object.assign(new class API extends EventDispatcher {
 	PLAYER_CLOSE() {},
 	PLAYER_CONFIG() {},
 
-	UNIFY_INPUT: (data = unify_input.getSerializeData()) => data
+	PLAYER_INPUT(data: IUnifyInputSerializeData = unify_input.getSerializeData()) { return data }
 }));

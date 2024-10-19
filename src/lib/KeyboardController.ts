@@ -40,9 +40,21 @@ export class KeyboardController extends EventDispatcher {
 		});
 	}
 
-	public isUp(key: Key) { return this._keys_up[key]; }
-	public isDown(key: Key) { return this._keys_down[key]; }
-	public isPress(key: Key) { return this._keys_press[key]; }
+	public isUp(key: Key): boolean;
+	public isUp(key: Key, ignoreCase: boolean): boolean;
+	public isUp(key: Key, ignoreCase: boolean = false) {
+		return KeyboardController.checkKeyState(key, ignoreCase, this._keys_up);
+	}
+	public isDown(key: Key): boolean;
+	public isDown(key: Key, ignoreCase: boolean): boolean;
+	public isDown(key: Key, ignoreCase: boolean = false) {
+		return KeyboardController.checkKeyState(key, ignoreCase, this._keys_down);
+	}
+	public isPress(key: Key): boolean;
+	public isPress(key: Key, ignoreCase: boolean): boolean;
+	public isPress(key: Key, ignoreCase: boolean = false) {
+		return KeyboardController.checkKeyState(key, ignoreCase, this._keys_press);
+	}
 
 	public nullify(dt: number) {
 		for(const key in this._keys_press) this._keys_press[key] = this._keys_up[key] = false;
@@ -50,5 +62,9 @@ export class KeyboardController extends EventDispatcher {
 
 	public destroy() {
 		this.events_off(true);
+	}
+
+	static checkKeyState(key: Key, ignoreCase: boolean, state: Record<string, boolean>): boolean {
+		return ignoreCase ? state[key.toLowerCase()] || state[key.toUpperCase()] : state[key];
 	}
 }
