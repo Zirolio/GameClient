@@ -25,4 +25,4 @@ const filter = (e: Event) => {
 
 export const touches = new TouchesController(GUIElement, filter);
 export const mouse = new MouseController(GUIElement, filter);
-export const keyboard = new KeyboardController(GUIElement);
+export const keyboard = new KeyboardController();
