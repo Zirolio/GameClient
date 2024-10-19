@@ -145,8 +145,8 @@ export class MainScene extends Control {
 					// this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
 				}
 			} else {
-				const local = viewport.transformFromScreenToViewport(mouse.pos);
-				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
+				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
+				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local) + Math.PI/2;
 
 				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.direction.y = -1;
 				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.direction.y = +1;
