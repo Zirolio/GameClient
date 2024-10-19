@@ -27,9 +27,9 @@ export const API = Object.assign(new class API extends EventDispatcher {
 		API.emit('update_entities', data);
 	}
 }, {
-	PLAYER_CONNECT() {},
-	PLAYER_CLOSE() {},
-	PLAYER_CONFIG() {},
+	PLAYER_CONNECT: () => {},
+	PLAYER_CLOSE: () => {},
+	PLAYER_CONFIG: () => {},
 
-	UNIFY_INPUT: (data = unify_input.getSerializeData()) => data
+	PLAYER_INPUT: (data = unify_input.getSerializeData()) => data
 }));

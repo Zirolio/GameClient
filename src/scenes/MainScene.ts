@@ -133,6 +133,8 @@ export class MainScene extends Control {
 
 	protected override _process(this: MainScene, dt: number): void {
 		if(this.player) {
+			unify_input.direction.set(0);
+
 			if(isMobile) {
 				if(this.$joystick.value >= 0.01) {
 					const { value, angle } = this.$joystick;
@@ -143,8 +145,6 @@ export class MainScene extends Control {
 					this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
 				}
 			} else {
-				unify_input.direction.set(0);
-
 				const local = viewport.transformFromScreenToViewport(mouse.pos);
 				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
 
@@ -158,7 +158,7 @@ export class MainScene extends Control {
 		}
 
 
-		API.UNIFY_INPUT();
+		if(!unify_input.direction.isSame(Vector2.ZERO)) API.PLAYER_INPUT();
 
         for(let arr = this.$players.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$players.c.delete(arr[i].id);
         for(let arr = this.$bullets.c.items, i = arr.length-1; i >= 0; --i) if(arr[i].isDestroyed) this.$bullets.c.delete(arr[i].id);
