@@ -64,6 +64,9 @@ export class MouseController extends EventDispatcher {
 			if(!filter(e)) return;
 
 			const button = e.button as EButton;
+
+			if(this.fP[button]) return;
+
 			const box = el.getBoundingClientRect();
 
 			this.up[button] = false;

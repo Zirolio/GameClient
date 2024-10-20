@@ -56,7 +56,7 @@ export class PlayersContainer extends Node {
 export class Player extends Node2D implements IPlayerItem {
 	public id!: string;
 
-	public radius: number = 30; 
+	public radius: number = 16; 
 
 	public MAX_HP: number = 100;
 	public HP: number = this.MAX_HP;
@@ -71,7 +71,7 @@ export class Player extends Node2D implements IPlayerItem {
 
 	protected override _draw({ ctx }: Viewport): void {
 		ctx.beginPath();
-		const grad = ctx.createRadialGradient(0, 0, this.radius, 0, 0, this.radius-10);
+		const grad = ctx.createRadialGradient(0, 0, this.radius, 0, 0, this.radius/10);
 		grad.addColorStop(0, '#38288e');
 		grad.addColorStop(1, '#283729');
 
@@ -82,7 +82,7 @@ export class Player extends Node2D implements IPlayerItem {
 
 		ctx.beginPath();
 		ctx.fillStyle = '#111111';
-		ctx.fillRect(-20, 20, 120, 10);
+		ctx.fillRect(-10, 10, 60, 10);
 
 
 		const c = this.HP / this.MAX_HP;

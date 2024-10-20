@@ -146,7 +146,7 @@ export class MainScene extends Control {
 				unify_input.lookAngle = this.player.rotation = angle;
 				unify_input.direction.set(Vector2.zero().moveAngle(value, angle));
 			} else {
-				unify_input.shot = mouse.isPress('left');
+				unify_input.shot = mouse.isDown('left');
 
 				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
 
