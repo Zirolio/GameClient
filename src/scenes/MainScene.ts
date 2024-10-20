@@ -127,6 +127,8 @@ export class MainScene extends Control {
 			p.addChild(o);
 		};
 
+		this.$camera.scale.set(1/viewport.vmin * 5);
+
 		if(isMobile) moveChild(this.$joystick, this.$camera);
 		else this.removeChild(this.$joystick.name, true);
 	}

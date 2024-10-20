@@ -1,7 +1,7 @@
 import { GameConfig } from './types';
 
 
-export const isMobile = true;
+export const isMobile = window.matchMedia('(any-pointer: coarse)').matches;
 
 
 export const config = {
