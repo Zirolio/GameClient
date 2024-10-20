@@ -1,8 +1,8 @@
 import { GameConfig } from './types';
 
 
-export const isMobile = window.matchMedia('(any-pointer: coarse)').matches;
-
+export const pointerIsCoarse = window.matchMedia('(pointer: coarse)').matches;
+export const pointerIsFine = window.matchMedia('(pointer: fine)').matches;
 
 export const config = {
 	game: {} as GameConfig

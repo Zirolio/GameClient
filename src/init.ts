@@ -8,9 +8,9 @@ import { ControllersSystem } from 'lib/scenes/Control';
 import { AnimationManager } from '@/animations';
 import { canvas, keyboard, mainloop, mouse, touches, viewport } from '@/canvas';
 import { socket } from '@/socket';
-import { isMobile } from './config';
 import { unify_input } from '@/unify-input';
 import { API } from '@/api';
+import { pointerIsFine } from '@/config';
 
 import { MainScene } from '@/scenes/MainScene';
 
@@ -18,9 +18,10 @@ import { MainScene } from '@/scenes/MainScene';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const GUIElement = document.querySelector<HTMLDivElement>('#GUI')!;
 
-//@ts-ignore
-if(isMobile) window.ondblclick = () => app.webkitRequestFullscreen();
-else {
+if(pointerIsFine) {
+	//@ts-ignore
+	window.ondblclick = () => app.webkitRequestFullscreen();
+} else {
 	//@ts-ignore
 	window.onkeyup = e => e.key === 'F11' && app.webkitRequestFullscreen();
 	GUIElement.oncontextmenu = e => e.preventDefault();

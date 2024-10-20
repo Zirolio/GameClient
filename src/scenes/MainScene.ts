@@ -19,7 +19,7 @@ import { BulletsContainer } from '@/scenes/Bullet';
 
 import { keyboard, mouse, touches, viewport } from '@/canvas';
 import { unify_input } from '@/unify-input';
-import { config, isMobile } from '@/config';
+import { config, pointerIsCoarse, pointerIsFine } from '@/config';
 import { API } from '@/api';
 import { EntityTypes } from '@/types/entityTypes';
 
@@ -129,7 +129,7 @@ export class MainScene extends Control {
 
 		this.$camera.scale.set(1/viewport.vmin * 6);
 
-		if(isMobile) moveChild(this.$joystick, this.$camera);
+		if(!pointerIsFine) moveChild(this.$joystick, this.$camera);
 		else this.removeChild(this.$joystick.name, true);
 	}
 
@@ -137,15 +137,7 @@ export class MainScene extends Control {
 		if(this.player) {
 			unify_input.direction.set(0);
 
-			if(isMobile) {
-				const touch = touches.findTouch(t => t.isDown()) || false;
-				unify_input.shot = touch && this.$joystick.touch !== touch;
-
-				const { value, angle } = this.$joystick;
-
-				unify_input.lookAngle = this.player.rotation = angle;
-				unify_input.direction.set(Vector2.zero().moveAngle(value, angle));
-			} else {
+			if(pointerIsFine) {
 				unify_input.shot = mouse.isDown('left');
 
 				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
@@ -158,7 +150,16 @@ export class MainScene extends Control {
 				if(keyboard.isDown('KeyD')) unify_input.direction.x = +1;
 
 				if(!unify_input.direction.isSame(Vector2.ZERO)) unify_input.direction.normalize();
+			} else {
+				const touch = touches.findTouch(t => t.isDown()) || false;
+				unify_input.shot = touch && this.$joystick.touch !== touch;
+
+				const { value, angle } = this.$joystick;
+
+				unify_input.lookAngle = this.player.rotation = angle;
+				unify_input.direction.set(Vector2.zero().moveAngle(value, angle));
 			}
+
 
 			API.PLAYER_INPUT();
 		}

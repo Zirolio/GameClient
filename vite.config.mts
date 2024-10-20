@@ -3,6 +3,8 @@ import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { createHtmlPlugin } from 'vite-plugin-html';
 
+import fs from 'node:fs';
+
 const addErudaShell = createHtmlPlugin({
     inject: {
         tags: [
@@ -11,10 +13,10 @@ const addErudaShell = createHtmlPlugin({
     }
 });
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
     server: { port: 3000 },
     plugins: [
         tsconfigPaths(),
-        mode == 'development' ? addErudaShell : undefined
+        fs.statSync('./public/.eruda.js').isFile() && addErudaShell
     ]
-}));
+});
