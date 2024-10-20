@@ -30,8 +30,8 @@ export const unify_input = new class UnifyInput extends EventDispatcher {
 		this['@change'].emit();
 	}
 
-	public _direction = new Vector2();
-	public direction = new Vector2(0, 0, vec => !vec.isSame(this._direction) && this['@change'].emit());
+	public _prev_dir = new Vector2();
+	public direction = new Vector2(0, 0, vec => !vec.isSame(this._prev_dir) && (this['@change'].emit(), this._prev_dir.set(vec)));
 
 	public getSerializeData(): IUnifyInputSerializeData {
 		const data = Object.create(null) as IUnifyInputSerializeData;

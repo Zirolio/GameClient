@@ -136,14 +136,10 @@ export class MainScene extends Control {
 			unify_input.direction.set(0);
 
 			if(isMobile) {
-				if(this.$joystick.value >= 0.01) {
-					const { value, angle } = this.$joystick;
+				const { value, angle } = this.$joystick;
 
-					unify_input.direction.set(0).moveAngle(value, angle);
-
-					// this.player.rotation = angle + Math.PI/2;
-					// this.player.position.moveAngle(value*2, this.player.rotation - Math.PI/2);
-				}
+				unify_input.lookAngle = this.player.rotation = angle + Math.PI/2;
+				unify_input.direction.set(Vector2.zero().moveAngle(value, angle));
 			} else {
 				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
 
