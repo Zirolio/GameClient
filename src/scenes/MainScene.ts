@@ -127,7 +127,7 @@ export class MainScene extends Control {
 			p.addChild(o);
 		};
 
-		this.$camera.scale.set(1/viewport.vmin * 5);
+		this.$camera.scale.set(1/viewport.vmin * 6);
 
 		if(isMobile) moveChild(this.$joystick, this.$camera);
 		else this.removeChild(this.$joystick.name, true);
@@ -143,14 +143,14 @@ export class MainScene extends Control {
 
 				const { value, angle } = this.$joystick;
 
-				unify_input.lookAngle = this.player.rotation = angle + Math.PI/2;
+				unify_input.lookAngle = this.player.rotation = angle;
 				unify_input.direction.set(Vector2.zero().moveAngle(value, angle));
 			} else {
 				unify_input.shot = mouse.isPress('left');
 
 				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
 
-				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local) + Math.PI/2;
+				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
 
 				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.direction.y = -1;
 				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.direction.y = +1;

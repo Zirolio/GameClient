@@ -82,7 +82,7 @@ export class Player extends Node2D implements IPlayerItem {
 
 		ctx.beginPath();
 		ctx.fillStyle = '#111111';
-		ctx.fillRect(20, -100, 10, 120);
+		ctx.fillRect(-20, 20, 120, 10);
 
 
 		const c = this.HP / this.MAX_HP;
