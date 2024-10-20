@@ -27,7 +27,7 @@ export class BulletsContainer extends Node {
 	});
 
 	protected override async _init(): Promise<void> {
-		this.c.on('create:new', item => this.addChild(item, `item[${item.id}]`));
+		this.c.on('create:new', item => item.init().then(() => this.addChild(item, `item[${item.id}]`)));
 	}
 
 	public updateByServer(arr: IBulletNetData[]) {
@@ -59,11 +59,11 @@ export class Bullet extends Node2D implements IBulletItem {
 
 	protected override _draw({ ctx }: Viewport): void {
 		ctx.beginPath();
-		const grad = ctx.createRadialGradient(0, 0, this.radius, 0, 0, this.radius-10);
+		const grad = ctx.createRadialGradient(0, 0, this.radius, 0, 0, this.radius-1);
 		grad.addColorStop(0, '#298e8f');
 		grad.addColorStop(1, '#e29ee2');
-
 		ctx.fillStyle = grad;
+
 		ctx.arc(0, 0, this.radius, 0, Math.TAU);
 		ctx.fill();
 	}

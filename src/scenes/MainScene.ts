@@ -138,11 +138,16 @@ export class MainScene extends Control {
 			unify_input.direction.set(0);
 
 			if(isMobile) {
+				const touch = touches.findTouch(t => t.isDown()) || false;
+				unify_input.shot = touch && this.$joystick.touch !== touch;
+
 				const { value, angle } = this.$joystick;
 
 				unify_input.lookAngle = this.player.rotation = angle + Math.PI/2;
 				unify_input.direction.set(Vector2.zero().moveAngle(value, angle));
 			} else {
+				unify_input.shot = mouse.isPress('left');
+
 				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
 
 				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local) + Math.PI/2;

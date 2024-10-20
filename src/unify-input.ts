@@ -36,7 +36,7 @@ export const unify_input = new class UnifyInput extends EventDispatcher {
 	public getSerializeData(): IUnifyInputSerializeData {
 		const data = Object.create(null) as IUnifyInputSerializeData;
 
-		data.shot = this.shot
+		data.shot = this.shot;
 		data.lookAngle = this.lookAngle;
 		data.direction = { x: this.direction.x, y: this.direction.y };
 
