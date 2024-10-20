@@ -16,14 +16,15 @@ import { MainScene } from '@/scenes/MainScene';
 
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
-//@ts-ignore
-if(isMobile) window.ondblclick = () => app.webkitRequestFullscreen();
-//@ts-ignore
-else window.onkeyup = e => e.key === 'F11' && app.webkitRequestFullscreen();
-
 const GUIElement = document.querySelector<HTMLDivElement>('#GUI')!;
 
-GUIElement.oncontextmenu = e => e.preventDefault();
+//@ts-ignore
+if(isMobile) window.ondblclick = () => app.webkitRequestFullscreen();
+else {
+	//@ts-ignore
+	window.onkeyup = e => e.key === 'F11' && app.webkitRequestFullscreen();
+	GUIElement.oncontextmenu = e => e.preventDefault();
+}
 
 
 canvas.on('resize', size => viewport.size.set(size), 1000).call(canvas, canvas.size, canvas.pixelRatio);
