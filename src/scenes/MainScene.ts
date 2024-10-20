@@ -152,10 +152,10 @@ export class MainScene extends Control {
 
 				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
 
-				if(keyboard.isDown('w') || keyboard.isDown('W')) unify_input.direction.y = -1;
-				if(keyboard.isDown('s') || keyboard.isDown('S')) unify_input.direction.y = +1;
-				if(keyboard.isDown('a') || keyboard.isDown('A')) unify_input.direction.x = -1;
-				if(keyboard.isDown('d') || keyboard.isDown('D')) unify_input.direction.x = +1;
+				if(keyboard.isDown('KeyW')) unify_input.direction.y = -1;
+				if(keyboard.isDown('KeyS')) unify_input.direction.y = +1;
+				if(keyboard.isDown('KeyA')) unify_input.direction.x = -1;
+				if(keyboard.isDown('KeyD')) unify_input.direction.x = +1;
 
 				if(!unify_input.direction.isSame(Vector2.ZERO)) unify_input.direction.normalize();
 			}

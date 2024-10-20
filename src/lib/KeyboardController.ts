@@ -1,18 +1,24 @@
 import { Event, EventDispatcher } from 'ver/events';
 
-
 type Key = string;
+interface KeyData {
+	up: boolean;
+	down: boolean;
+	press: boolean;
+	timestamp?: number;
+}
+interface KeyInfo {
+	readonly alt: boolean;
+	readonly ctrl: boolean;
+	readonly shift: boolean;
+}
 
-// TODO: add time down
 export class KeyboardController extends EventDispatcher {
-	public '@keydown' = new Event<KeyboardController, [key: Key]>(this);
-	public '@keyup' = new Event<KeyboardController, [key: Key]>(this);
-	public '@keypress' = new Event<KeyboardController, [key: Key]>(this);
+	public '@keydown' = new Event<KeyboardController, [key: Key, info: KeyInfo]>(this);
+	public '@press' = new Event<KeyboardController, [key: Key, info: KeyInfo]>(this);
+	public '@keyup' = new Event<KeyboardController, [key: Key, info: KeyInfo]>(this);
 
-
-	protected _keys_down: Record<Key, boolean> = Object.create(null);
-	protected _keys_up: Record<Key, boolean> = Object.create(null);
-	protected _keys_press: Record<Key, boolean> = Object.create(null);
+	protected _keys_state: Record<Key, KeyData> = Object.create(null);
 
 	constructor() {
 		super();
@@ -20,32 +26,46 @@ export class KeyboardController extends EventDispatcher {
 		window.addEventListener('keydown', e => {
 			const key = e.key as Key;
 
-			if(!this._keys_down[key]) {
-				this._keys_down[key] = true;
-				this._keys_press[key] = true;
+			if (this._keys_state[e.key] == undefined) this._keys_state[e.key] = { up: false, down: false, press: false };
+			if (this._keys_state[e.code] == undefined) this._keys_state[e.code] = { up: false, down: false, press: false };
 
-				this['@keypress'].emit(key);
+			if (this._keys_state[e.key].down == false) {
+				this._keys_state[e.key].press = true;
+				this['@press'].emit(e.key, { alt: e.altKey, ctrl: e.ctrlKey, shift: e.shiftKey });
+			}
+			if (this._keys_state[e.code].down == false) {
+				this._keys_state[e.code].press = true;
+				this['@press'].emit(e.code, { alt: e.altKey, ctrl: e.ctrlKey, shift: e.shiftKey });
 			}
 
-			this['@keydown'].emit(key);
+			this._keys_state[e.key].up = this._keys_state[e.code].up = false;
+			this._keys_state[e.key].down = this._keys_state[e.code].down = true;
+			this._keys_state[e.key].timestamp = this._keys_state[e.code].timestamp = Date.now();
+
+			this['@keydown'].emit(key, { alt: e.altKey, ctrl: e.ctrlKey, shift: e.shiftKey });
 		});
 
 		window.addEventListener('keyup', e => {
 			const key = e.key as Key;
 
-			this._keys_down[key] = false;
-			this._keys_up[key] = true;
+			if (this._keys_state[e.key] == undefined) this._keys_state[e.key] = { up: false, down: false, press: false };
+			if (this._keys_state[e.code] == undefined) this._keys_state[e.code] = { up: false, down: false, press: false };
 
-			this['@keyup'].emit(key);
+			this._keys_state[e.key].up = this._keys_state[e.code].up = true;
+			this._keys_state[e.key].press = this._keys_state[e.code].press = this._keys_state[e.key].down = this._keys_state[e.code].down = false;
+			delete this._keys_state[e.key].timestamp;
+			delete this._keys_state[e.code].timestamp;
+
+			this['@keyup'].emit(key, { alt: e.altKey, ctrl: e.ctrlKey, shift: e.shiftKey });
 		});
 	}
 
-	public isUp(key: Key) { return this._keys_up[key]; }
-	public isDown(key: Key) { return this._keys_down[key]; }
-	public isPress(key: Key) { return this._keys_press[key]; }
+	public isUp(key: Key) { return this._keys_state[key]?.up || false; }
+	public isDown(key: Key) { return this._keys_state[key]?.down || false; }
+	public isPressed(key: Key) { return { pressed: this._keys_state[key]?.down || false, time: this._keys_state[key]?.down ? Date.now() - this._keys_state[key].timestamp! : NaN }; }
 
 	public nullify(dt: number) {
-		for(const key in this._keys_press) this._keys_press[key] = this._keys_up[key] = false;
+		for(const key in this._keys_state) this._keys_state[key] = { ...this._keys_state[key], up: false, press: false };
 	}
 
 	public destroy() {
