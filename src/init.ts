@@ -49,9 +49,6 @@ export const anims = new AnimationManager();
 mainloop.on('update', dt => { for(const anim of anims.anims) anim.tick(dt); }, -200);
 
 
-unify_input.on('change', () => API.isInputPushed = false);
-
-
 const write_address = Promise.withResolvers<string>();
 
 const input_address = document.createElement('input');

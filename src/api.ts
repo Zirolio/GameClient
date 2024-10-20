@@ -33,10 +33,5 @@ export const API = Object.assign(new class API extends EventDispatcher {
 	PLAYER_CLOSE: () => null,
 	PLAYER_CONFIG: () => null,
 
-	PLAYER_INPUT: (data = unify_input.getSerializeData()) => {
-		if(API.isInputPushed) return;
-		API.isInputPushed = true;
-
-		return data;
-	}
+	PLAYER_INPUT: (data = unify_input.getOneShotData()) => data
 }));
