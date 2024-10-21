@@ -17,10 +17,12 @@ import { Joystick } from 'lib/scenes/gui/Joystick';
 import { Player, PlayersContainer } from '@/scenes/Player';
 import { BulletsContainer } from '@/scenes/Bullet';
 
-import { keyboard, mouse, touches, viewport } from '@/canvas';
-import { unify_input } from '@/unify-input';
-import { config, pointerIsCoarse, pointerIsFine } from '@/config';
+import { POINTER_IS_FINE } from '@/config';
 import { API } from '@/api';
+import { game } from '@/game';
+import { unify_input } from '@/unify-input';
+import { keyboard, mouse, touches, viewport } from '@/canvas';
+
 import { EntityTypes } from '@/types/entityTypes';
 
 
@@ -83,10 +85,10 @@ export class MainScene extends Control {
 	protected override async _init(this: MainScene): Promise<void> {
 		await super._init();
 
-		this.player = this.$players.c.getById(String(config.game.playerId)) || null;
+		this.player = this.$players.c.getById(String(game.playerId)) || null;
 
 		this.$players.c.on('create', item => {
-			if(item.id === String(config.game.playerId)) item.init().then(() => this.player = item);
+			if(item.id === String(game.playerId)) item.init().then(() => this.player = item);
 		});
 
 
@@ -129,7 +131,7 @@ export class MainScene extends Control {
 
 		this.$camera.scale.set(1/viewport.vmin * 6);
 
-		if(!pointerIsFine) moveChild(this.$joystick, this.$camera);
+		if(!POINTER_IS_FINE) moveChild(this.$joystick, this.$camera);
 		else this.removeChild(this.$joystick.name, true);
 	}
 
@@ -137,7 +139,7 @@ export class MainScene extends Control {
 		if(this.player) {
 			unify_input.direction.set(0);
 
-			if(pointerIsFine) {
+			if(POINTER_IS_FINE) {
 				unify_input.shot = mouse.isDown('left');
 
 				const local = viewport.transformFromScreenToViewport(mouse.pos.new());

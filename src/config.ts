@@ -1,9 +1,4 @@
-import { GameConfig } from './types';
+export const DEV_MODE = import.meta.env.DEV;
 
-
-export const pointerIsCoarse = window.matchMedia('(pointer: coarse)').matches;
-export const pointerIsFine = window.matchMedia('(pointer: fine)').matches;
-
-export const config = {
-	game: {} as GameConfig
-};
+export const POINTER_IS_COARSE = window.matchMedia('(pointer: coarse)').matches;
+export const POINTER_IS_FINE = window.matchMedia('(pointer: fine)').matches;

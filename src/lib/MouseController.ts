@@ -1,11 +1,6 @@
 import { Vector2 } from 'ver/Vector2';
 import { Event, EventDispatcher } from 'ver/events';
 
-export const config = {
-	DOWN_TIME: 300,
-	CLICK_TIME: 300,
-	CLICK_GAP: 300
-};
 
 const buttons = {
 	'left': 0, 0: 'left',
@@ -19,6 +14,10 @@ type EButton = Extract<keyof typeof buttons, number>;
 const init = <T>(initial: T) => Array<T>(3).fill(initial);
 
 export class MouseController extends EventDispatcher {
+	public static DOWN_TIME = 300;
+	public static CLICK_TIME = 300;
+	public static CLICK_GAP = 30;
+
 	public '@press' = new Event<MouseController, [button: button]>(this);
 	public '@up' = new Event<MouseController, [button: button]>(this);
 	public '@down' = new Event<MouseController, [button: button]>(this);
@@ -100,7 +99,7 @@ export class MouseController extends EventDispatcher {
 
 			if(!this.moved[button]) this.fC[button] = true;
 
-			if(this.fC[button] && this.downTime[button] <= config.CLICK_TIME && this.upTime[button] <= config.CLICK_GAP) {
+			if(this.fC[button] && this.downTime[button] <= MouseController.CLICK_TIME && this.upTime[button] <= MouseController.CLICK_GAP) {
 				this.clickCount[button]++;
 			} else this.clickCount[button] = 0;
 
@@ -150,12 +149,12 @@ export class MouseController extends EventDispatcher {
 	public isUp(button: button) { return this.fU[buttons[button]]; }
 	public isMove(button: button) { return this.fM[buttons[button]]; }
 
-	public isClick(button: button, time: number = config.CLICK_TIME, gap: number = config.CLICK_GAP) {
+	public isClick(button: button, time: number = MouseController.CLICK_TIME, gap: number = MouseController.CLICK_GAP) {
 		return this.fC && this.downTime[buttons[button]] <= time && this.upTime[buttons[button]] <= gap;
 	}
 	public isdblClick(button: button) { return this.fC[buttons[button]] && this.clickCount[buttons[button]] === 2; }
 
-	public isTimeDown(button: button, time: number = config.DOWN_TIME) {
+	public isTimeDown(button: button, time: number = MouseController.DOWN_TIME) {
 		return !this.moved[buttons[button]] && this.down[buttons[button]] && this.downTime[buttons[button]] >= time;
 	}
 
@@ -164,7 +163,7 @@ export class MouseController extends EventDispatcher {
 			if(this.up[i]) this.upTime[i] += dt;
 			if(this.down[i]) this.downTime[i] += dt;
 
-			if(this.downTime[i] > config.CLICK_TIME || this.upTime[i] > config.CLICK_GAP) this.clickCount[i] = 0;
+			if(this.downTime[i] > MouseController.CLICK_TIME || this.upTime[i] > MouseController.CLICK_GAP) this.clickCount[i] = 0;
 			this.fP[i] = this.fU[i] = this.fM[i] = this.fC[i] = false;
 		}
 	}

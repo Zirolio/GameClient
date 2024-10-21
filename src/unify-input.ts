@@ -13,12 +13,12 @@ export interface IUnifyInputSerializeData {
 
 
 export const unify_input = new class UnifyInput extends EventDispatcher {
+	shot: boolean = false;
+	lookAngle: number = 0;
+	direction = new Vector2();
+
+
 	#prev!: IUnifyInputSerializeData;
-
-	public shot: boolean = false;
-	public lookAngle: number = 0;
-	public direction = new Vector2();
-
 	public getOneShotData(): IUnifyInputSerializeData | void {
 		const data = Object.create(null) as IUnifyInputSerializeData;
 

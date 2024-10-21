@@ -8,9 +8,8 @@ import { ControllersSystem } from 'lib/scenes/Control';
 import { AnimationManager } from '@/animations';
 import { canvas, keyboard, mainloop, mouse, touches, viewport } from '@/canvas';
 import { socket } from '@/socket';
-import { unify_input } from '@/unify-input';
-import { API } from '@/api';
-import { pointerIsFine } from '@/config';
+import { game } from '@/game';
+import { POINTER_IS_FINE } from '@/config';
 
 import { MainScene } from '@/scenes/MainScene';
 
@@ -18,7 +17,7 @@ import { MainScene } from '@/scenes/MainScene';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const GUIElement = document.querySelector<HTMLDivElement>('#GUI')!;
 
-if(pointerIsFine) {
+if(POINTER_IS_FINE) {
 	//@ts-ignore
 	window.ondblclick = () => app.webkitRequestFullscreen();
 } else {
@@ -65,7 +64,7 @@ GUIElement.append(input_address);
 
 		const address = await write_address.promise;
 
-		await Promise.all([socket.connect(`ws://${address}/server`), (async () => {
+		await Promise.all([socket.connect(`ws://${address}/server`).then(() => game), (async () => {
 			console.log('connecting...');
 
 			delay(10000, () => {

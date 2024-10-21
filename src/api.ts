@@ -1,6 +1,6 @@
 import { Event, EventDispatcher } from 'ver/events'
 
-import { config } from '@/config';
+import { game } from '@/game';
 import { socket } from '@/socket';
 import { mainloop } from '@/canvas';
 import { createSocketApi } from '@/utils/Socket';
@@ -20,7 +20,9 @@ export const API = Object.assign(new class API extends EventDispatcher {
 	public '@update_entities' = new Event<this, [data: INetData[]]>(this);
 }, createSocketApi(socket, {
 	SERVER_GAME_CONFIG(data: GameConfig) {
-		Object.assign(config.game, data);
+		Object.assign(game, data);
+
+		game.emit('ready');
 
 		mainloop.start();
 	},

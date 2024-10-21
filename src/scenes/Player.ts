@@ -46,7 +46,7 @@ export class PlayersContainer extends Node {
 			});
 			else {
 				item.rotation = data.rotation;
-				item.position.set(Vector2.from(data.position));
+				item.new_position.set(Vector2.from(data.position));
 			}
 		}
 	}
@@ -54,6 +54,8 @@ export class PlayersContainer extends Node {
 
 
 export class Player extends Node2D implements IPlayerItem {
+	public new_position = new Vector2();
+
 	public id!: string;
 
 	public radius: number = 16; 
@@ -67,6 +69,8 @@ export class Player extends Node2D implements IPlayerItem {
 
 	protected override _process(dt: number): void {
 		this.HP = Math.mod(this.HP + 0.05 * dt, 0, this.MAX_HP);
+
+		this.position.moveTime(this.new_position, 2);
 	}
 
 	protected override _draw({ ctx }: Viewport): void {
