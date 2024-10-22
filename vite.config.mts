@@ -17,6 +17,6 @@ export default defineConfig({
     server: { port: 3000 },
     plugins: [
         tsconfigPaths(),
-        fs.statSync('./public/.eruda.js').isFile() && addErudaShell
+        fs.existsSync('./public/.eruda.js') && addErudaShell
     ]
 });
