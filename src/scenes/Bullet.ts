@@ -55,14 +55,14 @@ export class Bullets extends CanvasItem {
 			if(!item) this.create({
 				id: String(data.id),
 				bulletType: data.bulletType,
-				position: data.position.new(),
-				server_position: data.position.new(),
+				position: data.position.new().inc(game.scale),
+				server_position: data.position.new().inc(game.scale),
 				isServerDestroyed: data.destroyed
 			});
 
 			else {
-				item.position.set(data.position);
-				item.server_position.set(data.position),
+				item.position.set(data.position).inc(game.scale);
+				item.server_position.set(data.position).inc(game.scale);
 				item.isServerDestroyed = data.destroyed;
 			}
 		}

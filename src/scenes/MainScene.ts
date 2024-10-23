@@ -42,6 +42,15 @@ class Info extends Node2D {
 		ctx.restore();
 
 
+		const pos = new Vector2(game.area.x, game.area.y).inc(game.scale);
+		const size = new Vector2(game.area.width, game.area.height).inc(32 * game.scale);
+
+		ctx.save();
+		ctx.strokeStyle = '#eeee22';
+		ctx.strokeRect(pos.x + -size.x/2, pos.y + -size.y/2, size.x, size.y);
+		ctx.restore();
+
+
 		ctx.resetTransform();
 		viewport.scalePixelRatio();
 	}
@@ -96,7 +105,7 @@ export class MainScene extends Control {
 			this.$gridMap.size.set(this.$camera.size.new().inc(this.$camera.scale)).inc(5);
 		});
 
-		this.$gridMap.tile.set(40*game.scale, 40*game.scale);
+		this.$gridMap.tile.set(40 * game.scale * 4);
 
 		this.$info.self = this;
 
@@ -113,10 +122,7 @@ export class MainScene extends Control {
 	}
 
 	protected override _ready(this: MainScene): void {
-		const moveChild = (o: Node, p: Node) => {
-			o.parent!.removeChild(o.name, true);
-			p.addChild(o);
-		};
+		const moveChild = (o: Node, p: Node): Node => p.addChild(o.parent!.removeChild(o.name, true) as Node);
 
 		if(!POINTER_IS_FINE) moveChild(this.$joystick, this.$camera);
 		else this.removeChild(this.$joystick.name, true);
@@ -129,8 +135,8 @@ export class MainScene extends Control {
 			if(POINTER_IS_FINE) {
 				unify_input.shot = mouse.isDown('left');
 
-				const local = viewport.transformFromScreenToViewport(mouse.pos.new());
-				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(local);
+				const mouse_pos = viewport.transformFromScreenToViewport(mouse.pos.new());
+				unify_input.lookAngle = this.player.rotation = this.player.globalPosition.getAngleRelative(mouse_pos);
 
 
 				unify_input.direction.set(0);
