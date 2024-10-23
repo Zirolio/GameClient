@@ -1,76 +1,42 @@
-import { Vector2 } from 'ver/Vector2';
 import { math as Math } from 'ver/helpers';
 import type { Viewport } from 'ver/Viewport';
 
+import { game } from '@/game';
+
 import { Node } from 'lib/scenes/Node';
-import { Node2D } from 'lib/scenes/Node2D';
-import { Container, IBaseItem } from 'lib/modules/Container';
-import { IPlayerNetData } from '@/types';
-import { Vec2Like } from '@/utils/vec2';
+import { ReuseContainer } from 'lib/modules/Container';
+import { ServerEntity } from './ServerEntity';
+import type { IPlayerNetData } from '@/types';
 
 
-export interface IPlayerItem extends IBaseItem {
-	rotation: number;
-	position: Vec2Like;
-	MAX_HP: number;
-	HP: number;
-}
+export declare namespace Player {
+	export interface ISyncData extends IPlayerNetData {}
 
-export class PlayersContainer extends Node {
-	protected static override async _load(scene: typeof PlayersContainer): Promise<void> {
-		await super._load(scene);
-		await Player.load();
-	}
-
-	public c = new Container<typeof Player, IPlayerItem>(Player, 10, (item, data) => {
-		item.id = data.id;
-		item.rotation = data.rotation;
-		item.position.set(Vector2.from(data.position));
-		item.MAX_HP = data.MAX_HP;
-		item.HP = data.HP;
-	});
-
-	protected override async _init(): Promise<void> {
-		this.c.on('create:new', item => item.init().then(() => this.addChild(item, `item[${item.id}]`)));
-	}
-
-	public updateByServer(arr: IPlayerNetData[]) {
-		for(const data of arr) {
-			let item = this.c.getById(String(data.id));
-
-			if(!item) this.c.create({
-				id: String(data.id),
-				MAX_HP: 100, HP: 100,
-				rotation: 0,
-				position: Vector2.from(data.position)
-			});
-			else {
-				item.rotation = data.rotation;
-				item.new_position.set(Vector2.from(data.position));
-			}
-		}
+	export interface IReuseData extends ServerEntity.IReuseData {
+		rotation: number;
+		radius: number;
+		MAX_HP: number;
+		HP: number;
 	}
 }
 
 
-export class Player extends Node2D implements IPlayerItem {
-	public new_position = new Vector2();
-
-	public id!: string;
-
-	public radius: number = 16; 
+export class Player extends ServerEntity implements Player.IReuseData {
+	public radius!: number;
 
 	public MAX_HP: number = 100;
 	public HP: number = this.MAX_HP;
 
 	protected override async _init(): Promise<void> {
+		await super._init();
+
 		this.draw_distance = this.radius;
 	}
 
 	protected override _process(dt: number): void {
-		this.HP = Math.mod(this.HP + 0.05 * dt, 0, this.MAX_HP);
+		super._process(dt);
 
-		this.position.moveTime(this.new_position, 2);
+		this.HP = Math.mod(this.HP + 0.05 * dt, 0, this.MAX_HP);
 	}
 
 	protected override _draw({ ctx }: Viewport): void {
@@ -95,12 +61,56 @@ export class Player extends Node2D implements IPlayerItem {
 
 		ctx.beginPath();
 		ctx.strokeStyle = `#22ee22`;
-		ctx.arc(0, 0, this.radius+10, 0, Math.TAU * -c);
+		ctx.arc(0, 0, this.radius*1.5, 0, Math.TAU * -c);
 		ctx.stroke();
 
 		ctx.beginPath();
 		ctx.strokeStyle = `#ee2222`;
-		ctx.arc(0, 0, this.radius+10, Math.TAU * -c, 0);
+		ctx.arc(0, 0, this.radius*1.5, Math.TAU * -c, 0);
 		ctx.stroke();
+	}
+}
+
+
+export namespace Player {
+	export class Container extends Node {
+		protected static override async _load(scene: typeof Container): Promise<void> {
+			await super._load(scene);
+			await Player.load();
+		}
+
+		public c = new ReuseContainer<typeof Player, Player.IReuseData>(Player, 10, (item, data) => this.c.assign(item, data));
+
+		protected override async _init(): Promise<void> {
+			this.c.on('create:new', item => item.init().then(() => this.addChild(item, `item[${item.id}]`)));
+			this.c.on('deleteing', item => this.removeChild(`item[${item.id}]`));
+		}
+
+		public updateByServer(arr: ISyncData[]) {
+			for(const data of arr) {
+				const item = this.c.getById(String(data.id));
+
+				if(item && data.destroyed) {
+					this.c.delete(item.id);
+					continue;
+				}
+
+				if(!item) this.c.create({
+					id: String(data.id),
+					MAX_HP: 100, HP: 100,
+					radius: 40*game.scale,
+					rotation: 0,
+					position: data.position.new().inc(game.scale),
+					server_position: data.position.new().inc(game.scale),
+					isServerDestroyed: data.destroyed
+				});
+
+				else {
+					item.rotation = data.rotation;
+					item.server_position.set(data.position).inc(game.scale);
+					item.isServerDestroyed = data.destroyed;
+				}
+			}
+		}
 	}
 }

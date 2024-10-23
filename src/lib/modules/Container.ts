@@ -2,18 +2,22 @@ import { Vector2 } from 'ver/Vector2';
 import { Event, EventDispatcher } from 'ver/events';
 
 
-export interface IBaseItem { id: string; }
+export declare namespace ReuseContainer {
+	export interface IReuseData {
+		id: string;
+	}
+}
 
-export class Container<
-	Class extends new (...args: any) => IBaseItem,
-	IData extends IBaseItem
+export class ReuseContainer<
+	Class extends new (...args: any) => ReuseContainer.IReuseData,
+	IData extends ReuseContainer.IReuseData
 > extends EventDispatcher {
-	public '@create' = new Event<Container<Class, IData>, [item: InstanceType<Class>, data: IData, isNewItem: boolean]>(this);
-	public '@create:new' = new Event<Container<Class, IData>, [item: InstanceType<Class>, data: IData]>(this);
-	public '@create:renew' = new Event<Container<Class, IData>, [item: InstanceType<Class>, data: IData]>(this);
+	public '@create' = new Event<ReuseContainer<Class, IData>, [item: InstanceType<Class>, data: IData, isNewItem: boolean]>(this);
+	public '@create:new' = new Event<ReuseContainer<Class, IData>, [item: InstanceType<Class>, data: IData]>(this);
+	public '@create:renew' = new Event<ReuseContainer<Class, IData>, [item: InstanceType<Class>, data: IData]>(this);
 
-	public '@deleteing' = new Event<Container<Class, IData>, [item: InstanceType<Class>]>(this);;
-	public '@deleted' = new Event<Container<Class, IData>, [id: string]>(this);;
+	public '@deleteing' = new Event<ReuseContainer<Class, IData>, [item: InstanceType<Class>]>(this);;
+	public '@deleted' = new Event<ReuseContainer<Class, IData>, [id: string]>(this);;
 
 
 	public items: InstanceType<Class>[] = [];
@@ -37,7 +41,7 @@ export class Container<
 
 	public getById(id: string) { return this.items.find(o => o.id === id); }
 
-	public async create(this: Container<Class, IData>, data: IData): Promise<InstanceType<Class>> {
+	public async create(this: ReuseContainer<Class, IData>, data: IData): Promise<InstanceType<Class>> {
 		let item: InstanceType<Class>;
 		let isNewItem = false;
 

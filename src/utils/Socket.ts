@@ -1,3 +1,4 @@
+import { Vector2 } from 'ver/Vector2';
 import { Event, EventDispatcher } from 'ver/events';
 
 import Encryption from '@/utils/encryption';
@@ -28,6 +29,31 @@ export const createSocketApi = <
 	}
 
 	return socketApi;
+};
+
+
+const Vec2LikeToVector2 = (o: any) => {
+	if(typeof o === 'object' && o !== null) {
+		const keys = Object.keys(o);
+
+		if(keys.length === 2 && keys.every(it => it === 'x' || it === 'y')) return new Vector2(o.x, o.y);
+
+		for(const key of keys) o[key] = Vec2LikeToVector2(o[key]);
+	}
+
+	return o;
+};
+
+const Vector2ToVec2Like = (o: any) => {
+	if(typeof o === 'object' && o !== null) {
+		const keys = Object.keys(o);
+
+		if(o instanceof Vector2) return { x: o.x, y: o.y };
+
+		for(const key of keys) o[key] = Vector2ToVec2Like(o[key]);
+	}
+
+	return o;
 };
 
 
@@ -82,10 +108,12 @@ export class Socket<
                 this['@connect'].emit();
             }
         } else if(this._isConnected) {
-			const msg = JSON.parse(data);
+			let [uri, obj] = JSON.parse(data);
 
-			this._notification_message(msg[0], [msg[1]] as any);
-			this['@NotificationMessage'].emit(msg[0], [msg[1]]);
+			obj = Vec2LikeToVector2(obj);
+
+			this._notification_message(uri, [obj] as any);
+			this['@NotificationMessage'].emit(uri, [obj]);
 		}
     }
 
@@ -95,7 +123,7 @@ export class Socket<
 		if(!this.socket) throw new Error('Socket not inited');
 
         if(this.socket.readyState == this.socket.OPEN) {
-            const event = JSON.stringify(args.length ? [uri, args[0]] : [uri]);
+            const event = JSON.stringify(args.length ? [uri, Vector2ToVec2Like(args[0])] : [uri]);
 
             this.socket.send(Encryption.encrypt(event));
         }
@@ -135,6 +163,8 @@ export class Socket<
 		};
 
 		return new Promise<this>((res, rej) => {
+			if(this._isConnected) res(this);
+
 			this['@connect'].on(() => res(this));
 			this['@error'].on(() => rej(new Error(`Socket connect error (${this.url})`)));
 		});

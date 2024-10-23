@@ -1,19 +1,33 @@
-import { Event, EventDispatcher } from 'ver/events';
-
-import type { AreaConfig, GameConfig } from '@/types';
+import { EventDispatcher, FunctionIsEvent } from 'ver/events';
 
 
-export const game = new class Game extends EventDispatcher implements PromiseLike<void>, GameConfig {
-	public '@ready' = new Event<this, []>(this);
+export interface AreaConfig {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export interface GameConfig {
+    playerId: number;
+    area: AreaConfig;
+}
+
+
+export const game = new class Game extends EventDispatcher implements GameConfig {
+	public scale!: number;
+
+
+	#ready: boolean = false;
+	public ready: FunctionIsEvent<this, [], () => Promise<void>> = new FunctionIsEvent(this, () => {
+		if(this.#ready) return Promise.resolve();
+
+		this.#ready = true;
+		this.ready.emit();
+
+		return Promise.resolve();
+	});
 
 	playerId!: number;
 	area!: AreaConfig;
-
-
-	public then<T1 = void, T2 = never>(
-		onfulfilled?: (() => T1 | PromiseLike<T1>) | null,
-		onrejected?: ((reason: any) => T2 | PromiseLike<T2>) | null
-	): PromiseLike<T1 | T2> {
-		return new Promise<void>(res => this['@ready'].once(() => res())).then(onfulfilled, onrejected);
-	}
 }

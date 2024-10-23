@@ -17,7 +17,7 @@ import { MainScene } from '@/scenes/MainScene';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 const GUIElement = document.querySelector<HTMLDivElement>('#GUI')!;
 
-if(POINTER_IS_FINE) {
+if(!POINTER_IS_FINE) {
 	//@ts-ignore
 	window.ondblclick = () => app.webkitRequestFullscreen();
 } else {
@@ -48,6 +48,9 @@ export const anims = new AnimationManager();
 mainloop.on('update', dt => { for(const anim of anims.anims) anim.tick(dt); }, -200);
 
 
+viewport.on('resize', () => game.scale = 1/40 * 5*viewport.vmin).call(viewport, viewport.size);
+
+
 const write_address = Promise.withResolvers<string>();
 
 const input_address = document.createElement('input');
@@ -58,13 +61,14 @@ input_address.onkeyup = e => e.key === 'Enter' && write_address.resolve(input_ad
 
 GUIElement.append(input_address);
 
-(async () => {
-	try {
-		let error: string = '';
 
+(async () => {
+	let error: string = '';
+
+	try {
 		const address = await write_address.promise;
 
-		await Promise.all([socket.connect(`ws://${address}/server`).then(() => game), (async () => {
+		await Promise.all([socket.connect(`ws://${address}/server`).then(() => game.ready()), (async () => {
 			console.log('connecting...');
 
 			delay(10000, () => {
@@ -72,7 +76,7 @@ GUIElement.append(input_address);
 			});
 
 			let i = 0; while(true) {
-				if(error) break;
+				if(error) throw error;
 
 				if(socket.isConnected) {
 					console.log('connected');
@@ -90,12 +94,12 @@ GUIElement.append(input_address);
 
 				if(!socket.isConnected) await delay(500);
 			}
-
-			if(error) throw error;
 		})()]);
 	} catch(err) {
 		console.error(err);
+		error = String(err);
 		GUIElement.innerHTML = `<h4 style="color: #ee7777; font-family: arkhip">${err}<h4>`;
+		throw err;
 	}
 
 
@@ -112,4 +116,6 @@ GUIElement.append(input_address);
 	await main_scene.init();
 
 	root_node.addChild(main_scene);
+
+	mainloop.start();
 })();

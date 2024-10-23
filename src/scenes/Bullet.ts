@@ -1,70 +1,91 @@
-import { Vector2 } from 'ver/Vector2';
 import { math as Math } from 'ver/helpers';
 import type { Viewport } from 'ver/Viewport';
 
-import { Node } from 'lib/scenes/Node';
-import { Node2D } from 'lib/scenes/Node2D';
-import { Container, IBaseItem } from 'lib/modules/Container';
-import { IBulletNetData } from '@/types';
-import { Vec2Like } from '@/utils/vec2';
+import { game } from '@/game';
 
-// TODO: deleting items
+import { CanvasItem } from 'lib/scenes/CanvasItem';
+import type { ServerEntity } from './ServerEntity';
+import type { IBulletNetData } from '@/types';
 
-export interface IBulletItem extends IBaseItem {
-	position: Vec2Like;
-	bulletType: number;
+
+export declare namespace Bullets {
+	export interface ISyncData extends IBulletNetData {}
+
+	export interface IReuseData extends ServerEntity.IReuseData {
+		radius?: number;
+		bulletType: number;
+	}
+
+	export interface Item extends IReuseData {
+		radius: number;
+	}
 }
 
-export class BulletsContainer extends Node {
-	protected static override async _load(scene: typeof BulletsContainer): Promise<void> {
-		await super._load(scene);
-		await Bullet.load();
+
+export class Bullets extends CanvasItem {
+	public items: Bullets.Item[] = [];
+
+	public create(data: Bullets.IReuseData) {
+		this.items.push({
+			id: data.id,
+			position: data.position.new(),
+			bulletType: data.bulletType,
+			isServerDestroyed: false,
+			radius: 5*game.scale,
+			server_position: data.position.new()
+		});
 	}
 
-	public c = new Container<typeof Bullet, IBulletItem>(Bullet, 10, (item, data) => {
-		item.id = data.id;
-		item.position.set(Vector2.from(data.position));
-	});
-
-	protected override async _init(): Promise<void> {
-		this.c.on('create:new', item => item.init().then(() => this.addChild(item, `item[${item.id}]`)));
+	public delete(id: Bullets.Item['id']): boolean {
+		const l = this.items.findIndex(it => it.id === id);
+		if(!~l) return false;
+		this.items.splice(l, 1);
+		return true;
 	}
 
-	public updateByServer(arr: IBulletNetData[]) {
+	public updateByServer(arr: Bullets.ISyncData[]) {
 		for(const data of arr) {
-			let item = this.c.getById(String(data.id));
+			const item = this.items.find(it => it.id === String(data.id));
 
-			if(!item) this.c.create({
+			if(item && data.destroyed) {
+				this.delete(item.id);
+				continue;
+			}
+
+			if(!item) this.create({
 				id: String(data.id),
 				bulletType: data.bulletType,
-				position: Vector2.from(data.position)
+				position: data.position.new(),
+				server_position: data.position.new(),
+				isServerDestroyed: data.destroyed
 			});
+
 			else {
-				item.position.set(Vector2.from(data.position));
+				item.position.set(data.position);
+				item.server_position.set(data.position),
+				item.isServerDestroyed = data.destroyed;
 			}
 		}
 	}
-}
 
-
-export class Bullet extends Node2D implements IBulletItem {
-	public bulletType!: number;
-	public id!: string;
-
-	public radius: number = 7; 
-
-	protected override async _init(): Promise<void> {
-		this.draw_distance = this.radius;
+	protected _drawBullet({ ctx }: Viewport, bullet: Bullets.Item) {
+		ctx.beginPath();
+		ctx.arc(bullet.position.x, bullet.position.y, bullet.radius, 0, Math.TAU);
+		ctx.fill();
 	}
 
-	protected override _draw({ ctx }: Viewport): void {
-		ctx.beginPath();
-		const grad = ctx.createRadialGradient(0, 0, this.radius, 0, 0, this.radius-1);
-		grad.addColorStop(0, '#298e8f');
-		grad.addColorStop(1, '#e29ee2');
-		ctx.fillStyle = grad;
+	protected override _render(viewport: Viewport): void {
+		viewport.ctx.save();
+		viewport.use(true);
 
-		ctx.arc(0, 0, this.radius, 0, Math.TAU);
-		ctx.fill();
+		viewport.ctx.fillStyle = '#ee2222';
+
+		for(let i = 0; i < this.items.length; i++) {
+			if(!viewport.isInViewport(this.items[i].position, this.items[i].radius)) continue;
+
+			this._drawBullet(viewport, this.items[i]);
+		}
+
+		viewport.ctx.restore();
 	}
 }
